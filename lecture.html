@@ -397,16 +397,27 @@
     font-style: italic;
   }
 
-  /* Dark-slide overrides for the live preview pane */
+  /* Dark-slide overrides for the live preview pane (v3) */
+  .slide-dark .preview-body,
+  .slide-dark-2 .preview-body,
+  .slide-dark-3 .preview-body { color: rgba(255,255,255,0.92); }
+
   .slide-dark .preview-body p,
   .slide-dark .preview-body ul,
   .slide-dark .preview-body ol,
+  .slide-dark .preview-body li,
   .slide-dark-2 .preview-body p,
   .slide-dark-2 .preview-body ul,
   .slide-dark-2 .preview-body ol,
+  .slide-dark-2 .preview-body li,
   .slide-dark-3 .preview-body p,
   .slide-dark-3 .preview-body ul,
-  .slide-dark-3 .preview-body ol { color: rgba(255,255,255,0.85); }
+  .slide-dark-3 .preview-body ol,
+  .slide-dark-3 .preview-body li { color: rgba(255,255,255,0.92); }
+
+  .slide-dark .preview-body li::marker,
+  .slide-dark-2 .preview-body li::marker,
+  .slide-dark-3 .preview-body li::marker { color: rgba(255,255,255,0.65); }
 
   .slide-dark .preview-body h1,
   .slide-dark .preview-body h2,
@@ -419,8 +430,15 @@
   .slide-dark-3 .preview-body h3 { color: #ffffff; }
 
   .slide-dark .preview-body strong,
+  .slide-dark .preview-body li strong,
   .slide-dark-2 .preview-body strong,
-  .slide-dark-3 .preview-body strong { color: #ffffff; }
+  .slide-dark-2 .preview-body li strong,
+  .slide-dark-3 .preview-body strong,
+  .slide-dark-3 .preview-body li strong { color: #ffffff; font-weight: 600; }
+
+  .slide-dark .preview-body em,
+  .slide-dark-2 .preview-body em,
+  .slide-dark-3 .preview-body em { color: rgba(255,255,255,0.92); }
 
   .slide-dark .preview-body code,
   .slide-dark-2 .preview-body code,
