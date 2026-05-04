@@ -326,9 +326,10 @@
     overflow: hidden;
   }
   .slide-dark .editor-panel,
-  .slide-dark-2 .editor-panel {
-    background: var(--surface-tile-2);
-    border-color: rgba(255,255,255,0.08);
+  .slide-dark-2 .editor-panel,
+  .slide-dark-3 .editor-panel {
+    background: var(--surface-tile-3);
+    border-color: rgba(255,255,255,0.10);
   }
   .editor-head {
     padding: 12px 18px;
@@ -343,8 +344,9 @@
     align-items: center;
   }
   .slide-dark .editor-head,
-  .slide-dark-2 .editor-head {
-    border-color: rgba(255,255,255,0.08);
+  .slide-dark-2 .editor-head,
+  .slide-dark-3 .editor-head {
+    border-color: rgba(255,255,255,0.10);
     color: var(--body-muted);
   }
   .editor-head .dot {
@@ -394,6 +396,49 @@
     margin: 10px 0;
     font-style: italic;
   }
+
+  /* Dark-slide overrides for the live preview pane */
+  .slide-dark .preview-body p,
+  .slide-dark .preview-body ul,
+  .slide-dark .preview-body ol,
+  .slide-dark-2 .preview-body p,
+  .slide-dark-2 .preview-body ul,
+  .slide-dark-2 .preview-body ol,
+  .slide-dark-3 .preview-body p,
+  .slide-dark-3 .preview-body ul,
+  .slide-dark-3 .preview-body ol { color: rgba(255,255,255,0.85); }
+
+  .slide-dark .preview-body h1,
+  .slide-dark .preview-body h2,
+  .slide-dark .preview-body h3,
+  .slide-dark-2 .preview-body h1,
+  .slide-dark-2 .preview-body h2,
+  .slide-dark-2 .preview-body h3,
+  .slide-dark-3 .preview-body h1,
+  .slide-dark-3 .preview-body h2,
+  .slide-dark-3 .preview-body h3 { color: #ffffff; }
+
+  .slide-dark .preview-body strong,
+  .slide-dark-2 .preview-body strong,
+  .slide-dark-3 .preview-body strong { color: #ffffff; }
+
+  .slide-dark .preview-body code,
+  .slide-dark-2 .preview-body code,
+  .slide-dark-3 .preview-body code {
+    background: rgba(255,255,255,0.10);
+    color: #ffffff;
+  }
+
+  .slide-dark .preview-body blockquote,
+  .slide-dark-2 .preview-body blockquote,
+  .slide-dark-3 .preview-body blockquote {
+    color: rgba(255,255,255,0.6);
+    border-left-color: var(--primary-on-dark);
+  }
+
+  .slide-dark .preview-body a,
+  .slide-dark-2 .preview-body a,
+  .slide-dark-3 .preview-body a { color: var(--primary-on-dark); }
 
   /* Format converter */
   .converter-grid {
