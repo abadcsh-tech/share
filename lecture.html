@@ -58,22 +58,105 @@
     overflow: hidden;
   }
   .reel {
+    position: relative;
     height: 100%;
     width: 100%;
-    display: flex;
-    transition: transform 0.6s cubic-bezier(.85,0,.15,1);
-    will-change: transform;
+    perspective: 1800px;
+    transform-style: preserve-3d;
   }
   .slide {
-    flex: 0 0 100%;
-    height: 100%;
-    width: 100%;
+    position: absolute;
+    inset: 0;
     overflow: hidden;
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: clamp(32px, 5vh, 80px) clamp(28px, 6vw, 96px);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(100%);
+    transform-origin: 50% 50%;
+    backface-visibility: hidden;
+    will-change: transform, opacity, filter;
+  }
+  /* Only the outgoing + incoming slides animate; the rest snap into position */
+  .slide.is-animating {
+    transition: transform 0.75s cubic-bezier(.65,0,.2,1),
+                opacity 0.55s ease,
+                filter 0.55s ease;
+  }
+  .slide.is-current {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0) translateY(0) scale(1) rotateY(0deg) rotateX(0deg);
+    z-index: 2;
+    filter: none;
+  }
+
+  /* ---- PUSH (default) ---- */
+  .stage[data-transition="push"] .slide.is-prev { transform: translateX(-100%); opacity: 1; }
+  .stage[data-transition="push"] .slide.is-next { transform: translateX(100%); opacity: 1; }
+
+  /* ---- ZOOM-IN (forward = grow, back = shrink) ---- */
+  .stage[data-transition="zoom-in"][data-dir="fwd"] .slide.is-prev {
+    transform: scale(1.6); opacity: 0; filter: blur(10px);
+  }
+  .stage[data-transition="zoom-in"][data-dir="fwd"] .slide.is-next {
+    transform: scale(0.4); opacity: 0; filter: blur(10px);
+  }
+  .stage[data-transition="zoom-in"][data-dir="back"] .slide.is-prev {
+    transform: scale(0.4); opacity: 0; filter: blur(10px);
+  }
+  .stage[data-transition="zoom-in"][data-dir="back"] .slide.is-next {
+    transform: scale(1.6); opacity: 0; filter: blur(10px);
+  }
+
+  /* ---- ZOOM-OUT (incoming drops in from huge) ---- */
+  .stage[data-transition="zoom-out"][data-dir="fwd"] .slide.is-prev {
+    transform: scale(0.4); opacity: 0; filter: blur(8px);
+  }
+  .stage[data-transition="zoom-out"][data-dir="fwd"] .slide.is-next {
+    transform: scale(1.6); opacity: 0; filter: blur(8px);
+  }
+  .stage[data-transition="zoom-out"][data-dir="back"] .slide.is-prev {
+    transform: scale(1.6); opacity: 0; filter: blur(8px);
+  }
+  .stage[data-transition="zoom-out"][data-dir="back"] .slide.is-next {
+    transform: scale(0.4); opacity: 0; filter: blur(8px);
+  }
+
+  /* ---- FADE (blur cross-fade) ---- */
+  .stage[data-transition="fade"] .slide.is-prev,
+  .stage[data-transition="fade"] .slide.is-next {
+    transform: scale(1.04); opacity: 0; filter: blur(6px);
+  }
+
+  /* ---- FLIP (3D Y-axis card) ---- */
+  .stage[data-transition="flip"][data-dir="fwd"] .slide.is-prev {
+    transform: rotateY(-90deg) translateZ(0); opacity: 0;
+  }
+  .stage[data-transition="flip"][data-dir="fwd"] .slide.is-next {
+    transform: rotateY(90deg) translateZ(0); opacity: 0;
+  }
+  .stage[data-transition="flip"][data-dir="back"] .slide.is-prev {
+    transform: rotateY(90deg) translateZ(0); opacity: 0;
+  }
+  .stage[data-transition="flip"][data-dir="back"] .slide.is-next {
+    transform: rotateY(-90deg) translateZ(0); opacity: 0;
+  }
+
+  /* ---- CUBE (3D rotation around vertical) ---- */
+  .stage[data-transition="cube"][data-dir="fwd"] .slide.is-prev {
+    transform: rotateY(-65deg) translateX(-55%) scale(0.85); opacity: 0.4;
+  }
+  .stage[data-transition="cube"][data-dir="fwd"] .slide.is-next {
+    transform: rotateY(65deg) translateX(55%) scale(0.85); opacity: 0.4;
+  }
+  .stage[data-transition="cube"][data-dir="back"] .slide.is-prev {
+    transform: rotateY(65deg) translateX(55%) scale(0.85); opacity: 0.4;
+  }
+  .stage[data-transition="cube"][data-dir="back"] .slide.is-next {
+    transform: rotateY(-65deg) translateX(-55%) scale(0.85); opacity: 0.4;
   }
   .slide-inner {
     width: 100%;
@@ -757,16 +840,17 @@
     transform: translateY(14px);
     transition: opacity 0.55s ease, transform 0.55s cubic-bezier(.2,.7,.3,1);
   }
-  .slide.active .build { opacity: 1; transform: translateY(0); }
-  .slide.active .build:nth-of-type(1) { transition-delay: 0.10s; }
-  .slide.active .build:nth-of-type(2) { transition-delay: 0.25s; }
-  .slide.active .build:nth-of-type(3) { transition-delay: 0.40s; }
-  .slide.active .build:nth-of-type(4) { transition-delay: 0.55s; }
-  .slide.active .build:nth-of-type(5) { transition-delay: 0.70s; }
+  .slide.is-current .build { opacity: 1; transform: translateY(0); }
+  .slide.is-current .build:nth-of-type(1) { transition-delay: 0.10s; }
+  .slide.is-current .build:nth-of-type(2) { transition-delay: 0.25s; }
+  .slide.is-current .build:nth-of-type(3) { transition-delay: 0.40s; }
+  .slide.is-current .build:nth-of-type(4) { transition-delay: 0.55s; }
+  .slide.is-current .build:nth-of-type(5) { transition-delay: 0.70s; }
 
   /* Overview mode */
   .stage.overview .reel {
     transform: none !important;
+    perspective: none;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
@@ -776,20 +860,25 @@
     height: 100%;
   }
   .stage.overview .slide {
+    position: relative !important;
+    inset: auto !important;
     flex: 0 0 auto;
     aspect-ratio: 16 / 9;
     height: auto;
-    transform: scale(1);
+    width: 100%;
+    transform: scale(1) !important;
+    opacity: 1 !important;
+    filter: none !important;
+    pointer-events: auto !important;
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
-    pointer-events: auto;
     border: 3px solid transparent;
-    transition: border-color 0.25s, transform 0.25s;
+    transition: border-color 0.25s, transform 0.25s !important;
     padding: 14px;
   }
-  .stage.overview .slide.active { border-color: var(--primary); }
-  .stage.overview .slide:hover { transform: scale(1.02); }
+  .stage.overview .slide.is-current { border-color: var(--primary); }
+  .stage.overview .slide:hover { transform: scale(1.02) !important; }
   .stage.overview .slide-inner { transform: scale(0.42); transform-origin: top left; width: 240%; pointer-events: none; }
   .stage.overview .nav-zone,
   .stage.overview .hint-bar,
@@ -827,7 +916,7 @@
     <!-- ============================================================
          Slide 1 — Title
          ============================================================ -->
-    <section class="slide slide-light" data-bg="light">
+    <section class="slide slide-light" data-bg="light" data-transition="zoom-in">
       <div class="slide-inner title-card">
         <div class="pill build">강의 자료 · 2026</div>
         <h1 class="title build">MD 파일,<br/>모든 것의 <span class="accent">시작</span>.</h1>
@@ -839,7 +928,7 @@
     <!-- ============================================================
          Slide 2 — 학습 목표
          ============================================================ -->
-    <section class="slide slide-parchment" data-bg="light">
+    <section class="slide slide-parchment" data-bg="light" data-transition="push">
       <div class="slide-inner">
         <div class="eyebrow build">이번 시간에</div>
         <h2 class="title build">우리는 <span class="hi">이 세 가지</span>를<br/>이해하게 됩니다.</h2>
@@ -866,7 +955,7 @@
     <!-- ============================================================
          Slide 3 — 옵시디언이란?
          ============================================================ -->
-    <section class="slide slide-light" data-bg="light">
+    <section class="slide slide-light" data-bg="light" data-transition="flip">
       <div class="slide-inner">
         <div class="eyebrow build">Obsidian</div>
         <h2 class="title build">옵시디언은<br/>'<span class="hi">디스플레이어</span>' 입니다.</h2>
@@ -882,7 +971,7 @@
     <!-- ============================================================
          Slide 4 — 옵시디언 라이브 데모
          ============================================================ -->
-    <section class="slide slide-parchment" data-bg="light">
+    <section class="slide slide-parchment" data-bg="light" data-transition="push">
       <div class="slide-inner">
         <div class="eyebrow">Live Demo</div>
         <h2 class="title">왼쪽이 <span class="accent">실제 .md</span> · 오른쪽이 <span class="accent">옵시디언이 본 화면</span></h2>
@@ -924,7 +1013,7 @@
     <!-- ============================================================
          Slide 5 — Claude Code란?
          ============================================================ -->
-    <section class="slide slide-dark" data-bg="dark">
+    <section class="slide slide-dark" data-bg="dark" data-transition="cube">
       <div class="slide-inner">
         <div class="eyebrow build">Claude Code</div>
         <h2 class="title build">Claude Code는<br/>'<span class="hi">생산자</span>' 입니다.</h2>
@@ -940,7 +1029,7 @@
     <!-- ============================================================
          Slide 6 — Claude Code 터미널 데모
          ============================================================ -->
-    <section class="slide slide-dark-2" data-bg="dark">
+    <section class="slide slide-dark-2" data-bg="dark" data-transition="push">
       <div class="slide-inner">
         <div class="eyebrow">Live Demo</div>
         <h2 class="title">"<span class="accent">자연어</span>" 한 줄이<br/>한 장의 <span class="accent">.md</span>가 됩니다.</h2>
@@ -966,7 +1055,7 @@
     <!-- ============================================================
          Slide 7 — 핵심 통찰
          ============================================================ -->
-    <section class="slide slide-dark-3" data-bg="dark">
+    <section class="slide slide-dark-3" data-bg="dark" data-transition="zoom-out">
       <div class="slide-inner" style="text-align:center;">
         <div class="eyebrow build">핵심 통찰</div>
         <p class="pull-quote build" style="margin: 0 auto;">
@@ -983,7 +1072,7 @@
     <!-- ============================================================
          Slide 8 — 변환의 자유 (인터랙티브)
          ============================================================ -->
-    <section class="slide slide-light" data-bg="light">
+    <section class="slide slide-light" data-bg="light" data-transition="flip">
       <div class="slide-inner">
         <div class="eyebrow">Convert</div>
         <h2 class="title">하나의 원본,<br/><span class="accent">여섯 개</span>의 출력.</h2>
@@ -1033,7 +1122,7 @@
     <!-- ============================================================
          Slide 9 — 비교: AI 친화도
          ============================================================ -->
-    <section class="slide slide-dark-2" data-bg="dark">
+    <section class="slide slide-dark-2" data-bg="dark" data-transition="push">
       <div class="slide-inner">
         <div class="eyebrow">왜 MD인가 · 1</div>
         <h2 class="title">AI는 <span class="accent">평문</span>을 가장 잘 읽습니다.</h2>
@@ -1067,7 +1156,7 @@
     <!-- ============================================================
          Slide 10 — 비교: 변환 자유도
          ============================================================ -->
-    <section class="slide slide-dark" data-bg="dark">
+    <section class="slide slide-dark" data-bg="dark" data-transition="push">
       <div class="slide-inner">
         <div class="eyebrow">왜 MD인가 · 2</div>
         <h2 class="title">한 번 닫힌 포맷은,<br/><span class="accent">다시 열리지 않습니다.</span></h2>
@@ -1101,7 +1190,7 @@
     <!-- ============================================================
          Slide 11 — 비교: 장기 보존성
          ============================================================ -->
-    <section class="slide slide-dark-2" data-bg="dark">
+    <section class="slide slide-dark-2" data-bg="dark" data-transition="push">
       <div class="slide-inner">
         <div class="eyebrow">왜 MD인가 · 3</div>
         <h2 class="title">MD가 사라질 가능성은<br/><span class="accent">매우 낮습니다.</span></h2>
@@ -1135,7 +1224,7 @@
     <!-- ============================================================
          Slide 12 — PPT의 함정 (인용)
          ============================================================ -->
-    <section class="slide slide-dark-3" data-bg="dark">
+    <section class="slide slide-dark-3" data-bg="dark" data-transition="zoom-in">
       <div class="slide-inner" style="text-align:center;">
         <div class="eyebrow build">메인 소스의 문제</div>
         <p class="pull-quote build">
@@ -1152,7 +1241,7 @@
     <!-- ============================================================
          Slide 13 — 전체 워크플로우
          ============================================================ -->
-    <section class="slide slide-light" data-bg="light">
+    <section class="slide slide-light" data-bg="light" data-transition="push">
       <div class="slide-inner">
         <div class="eyebrow">Workflow</div>
         <h2 class="title">전체 흐름은<br/>이렇게 작동합니다.</h2>
@@ -1199,7 +1288,7 @@
     <!-- ============================================================
          Slide 14 — 마무리
          ============================================================ -->
-    <section class="slide slide-light" data-bg="light">
+    <section class="slide slide-light" data-bg="light" data-transition="zoom-out">
       <div class="slide-inner title-card">
         <div class="pill build">정리</div>
         <h1 class="title build">
@@ -1243,21 +1332,73 @@ function applyBg() {
   const bg = slides[cur].dataset.bg || "light";
   stage.dataset.bg = bg;
 }
-function go(idx, push = true) {
-  cur = Math.max(0, Math.min(total - 1, idx));
-  reel.style.transform = `translateX(-${cur * 100}%)`;
-  slides.forEach((s, i) => s.classList.toggle("active", i === cur));
+
+/* Position helper — sets prev/current/next class on every slide
+   relative to the currently-visible index, with no animation. */
+function snapPositions(activeIdx) {
+  slides.forEach((s, i) => {
+    s.classList.remove("is-current", "is-prev", "is-next", "is-animating");
+    if (i === activeIdx) s.classList.add("is-current");
+    else if (i < activeIdx) s.classList.add("is-prev");
+    else s.classList.add("is-next");
+  });
+}
+
+function go(idx, pushHistory = true) {
+  idx = Math.max(0, Math.min(total - 1, idx));
+  if (idx === cur && slides[cur].classList.contains("is-current")) return;
+
+  const dir = idx >= cur ? "fwd" : "back";
+  // Use destination slide's transition style
+  const transition = slides[idx].dataset.transition || "push";
+
+  const oldCur = cur;
+
+  // Set the new transition + direction BEFORE swapping classes
+  stage.dataset.transition = transition;
+  stage.dataset.dir = dir;
+
+  // Snap all non-animating slides to their position (no transition)
+  slides.forEach((s, i) => {
+    if (i === oldCur || i === idx) return;
+    s.classList.remove("is-current", "is-prev", "is-next", "is-animating");
+    if (i < idx) s.classList.add("is-prev");
+    else s.classList.add("is-next");
+  });
+
+  // Mark outgoing + incoming as animating, then flip their classes next frame
+  const outgoing = slides[oldCur];
+  const incoming = slides[idx];
+  outgoing.classList.add("is-animating");
+  incoming.classList.add("is-animating");
+
+  // Force layout, then apply target classes so the transition runs
+  requestAnimationFrame(() => {
+    outgoing.classList.remove("is-current");
+    outgoing.classList.add(dir === "fwd" ? "is-prev" : "is-next");
+    incoming.classList.remove("is-prev", "is-next");
+    incoming.classList.add("is-current");
+  });
+
+  cur = idx;
   progress.style.width = `${((cur + 1) / total) * 100}%`;
   curEl.textContent = cur + 1;
   applyBg();
-  if (push) history.replaceState(null, "", `#${cur + 1}`);
+  if (pushHistory) history.replaceState(null, "", `#${cur + 1}`);
 }
 function next() { go(cur + 1); }
 function prev() { go(cur - 1); }
 
-/* Initial slide from hash */
-const initial = parseInt(location.hash.replace("#", ""), 10);
-go(Number.isFinite(initial) && initial >= 1 ? initial - 1 : 0, false);
+/* Initial slide from hash — snap (no animation) */
+const initialHash = parseInt(location.hash.replace("#", ""), 10);
+const startIdx = Number.isFinite(initialHash) && initialHash >= 1 ? Math.min(initialHash - 1, total - 1) : 0;
+cur = startIdx;
+stage.dataset.transition = slides[startIdx].dataset.transition || "push";
+stage.dataset.dir = "fwd";
+snapPositions(startIdx);
+progress.style.width = `${((cur + 1) / total) * 100}%`;
+curEl.textContent = cur + 1;
+applyBg();
 
 /* =========================================================
    2) Keyboard controls
