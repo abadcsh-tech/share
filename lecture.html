@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>MD 파일, 모든 것의 시작 — 강의 슬라이드</title>
+<style>
+  /* =========================================================
+     Tokens (same family as index.html)
+     ========================================================= */
+  :root {
+    --primary: #0066cc;
+    --primary-focus: #0071e3;
+    --primary-on-dark: #2997ff;
+
+    --canvas: #ffffff;
+    --canvas-parchment: #f5f5f7;
+    --surface-pearl: #fafafc;
+    --surface-tile-1: #272729;
+    --surface-tile-2: #2a2a2c;
+    --surface-tile-3: #1d1d1f;
+
+    --ink: #1d1d1f;
+    --ink-muted-80: #333333;
+    --ink-muted-48: #7a7a7a;
+    --on-dark: #ffffff;
+    --body-muted: #cccccc;
+
+    --hairline: #e0e0e0;
+    --divider-soft: #f0f0f0;
+
+    --product-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0;
+    --soft-shadow: 0 2px 24px rgba(0, 0, 0, 0.06);
+
+    --font-display: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    --font-text: "SF Pro Text", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-text);
+    color: var(--ink);
+    background: #000;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.01em;
+  }
+
+  /* =========================================================
+     Stage / slide carousel
+     ========================================================= */
+  .stage {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+  .reel {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    transition: transform 0.6s cubic-bezier(.85,0,.15,1);
+    will-change: transform;
+  }
+  .slide {
+    flex: 0 0 100%;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(32px, 5vh, 80px) clamp(28px, 6vw, 96px);
+  }
+  .slide-inner {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    text-align: left;
+  }
+  .slide-light { background: var(--canvas); color: var(--ink); }
+  .slide-parchment { background: var(--canvas-parchment); color: var(--ink); }
+  .slide-dark { background: var(--surface-tile-1); color: var(--on-dark); }
+  .slide-dark-2 { background: var(--surface-tile-2); color: var(--on-dark); }
+  .slide-dark-3 { background: var(--surface-tile-3); color: var(--on-dark); }
+
+  /* =========================================================
+     Typography
+     ========================================================= */
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: clamp(16px, 1.6vw, 22px);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 24px;
+  }
+  .slide-dark .eyebrow,
+  .slide-dark-2 .eyebrow,
+  .slide-dark-3 .eyebrow { color: var(--primary-on-dark); }
+
+  h1.title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 7.5vw, 104px);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    margin-bottom: 28px;
+  }
+  h2.title {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 5.6vw, 76px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+  h3.subtitle {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.8vw, 36px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    color: var(--ink-muted-80);
+    margin-bottom: 20px;
+  }
+  .slide-dark h3.subtitle,
+  .slide-dark-2 h3.subtitle,
+  .slide-dark-3 h3.subtitle { color: var(--body-muted); }
+
+  .lead {
+    font-size: clamp(18px, 1.8vw, 24px);
+    line-height: 1.45;
+    color: var(--ink-muted-80);
+    max-width: 920px;
+  }
+  .slide-dark .lead,
+  .slide-dark-2 .lead,
+  .slide-dark-3 .lead { color: var(--body-muted); }
+
+  .accent { color: var(--primary); }
+  .slide-dark .accent,
+  .slide-dark-2 .accent,
+  .slide-dark-3 .accent { color: var(--primary-on-dark); }
+
+  /* =========================================================
+     Header / footer overlays
+     ========================================================= */
+  .top-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(0,0,0,0.06);
+    z-index: 60;
+  }
+  .top-bar i {
+    display: block;
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.6s cubic-bezier(.2,.7,.3,1);
+  }
+  .stage[data-bg="dark"] .top-bar { background: rgba(255,255,255,0.08); }
+
+  .corner {
+    position: fixed;
+    top: 16px;
+    z-index: 55;
+    font-family: var(--font-text);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted-48);
+    user-select: none;
+    pointer-events: none;
+    transition: color 0.4s;
+  }
+  .stage[data-bg="dark"] .corner { color: rgba(255,255,255,0.55); }
+  .corner.left { left: 22px; }
+  .corner.right { right: 22px; font-variant-numeric: tabular-nums; }
+
+  .hint-bar {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 55;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 8px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    color: var(--ink-muted-48);
+    transition: opacity 0.6s ease, background 0.4s, color 0.4s, border-color 0.4s;
+  }
+  .stage[data-bg="dark"] .hint-bar {
+    background: rgba(40,40,42,0.7);
+    border-color: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+  }
+  .hint-bar.fade { opacity: 0.18; }
+  .hint-bar:hover { opacity: 1 !important; }
+  .hint-bar kbd {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: var(--ink-muted-80);
+  }
+  .stage[data-bg="dark"] .hint-bar kbd {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.85);
+  }
+
+  .nav-zone {
+    position: fixed;
+    top: 0; bottom: 0;
+    width: 18%;
+    z-index: 30;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+  .nav-zone.left { left: 0; }
+  .nav-zone.right { right: 0; }
+  .nav-zone .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.05);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .nav-zone.left .arrow { left: 22px; }
+  .nav-zone.right .arrow { right: 22px; }
+  .nav-zone:hover .arrow { opacity: 1; }
+  .stage[data-bg="dark"] .nav-zone .arrow {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+
+  /* =========================================================
+     Reusable widgets
+     ========================================================= */
+  .pill {
+    display: inline-block;
+    background: var(--canvas-parchment);
+    color: var(--ink);
+    padding: 8px 16px;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+  }
+  .slide-dark .pill,
+  .slide-dark-2 .pill,
+  .slide-dark-3 .pill {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+
+  /* Cards & grids */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+
+  .objective {
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    padding: 28px 24px;
+    box-shadow: var(--soft-shadow);
+  }
+  .objective .num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .objective h4 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .objective p {
+    font-size: 15px;
+    color: var(--ink-muted-80);
+    line-height: 1.5;
+  }
+
+  /* Live editor */
+  .editor-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .editor-panel {
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .slide-dark .editor-panel,
+  .slide-dark-2 .editor-panel {
+    background: var(--surface-tile-2);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .editor-head {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted-48);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .slide-dark .editor-head,
+  .slide-dark-2 .editor-head {
+    border-color: rgba(255,255,255,0.08);
+    color: var(--body-muted);
+  }
+  .editor-head .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .dot.r { background: #ff5f57; } .dot.y { background: #febc2e; } .dot.g { background: #28c840; }
+  .editor-body {
+    padding: 16px 20px;
+    font-family: var(--font-mono);
+    font-size: clamp(13px, 1.05vw, 16px);
+    line-height: 1.6;
+    height: 38vh;
+    max-height: 380px;
+    overflow: auto;
+  }
+  .editor-body textarea {
+    width: 100%; height: 100%;
+    border: none; outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    resize: none;
+  }
+  .preview-body {
+    padding: 22px;
+    height: 38vh;
+    max-height: 380px;
+    overflow: auto;
+  }
+  .preview-body h1 { font-family: var(--font-display); font-size: 26px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.01em; }
+  .preview-body h2 { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 14px 0 8px; }
+  .preview-body h3 { font-family: var(--font-display); font-size: 17px; font-weight: 600; margin: 12px 0 6px; }
+  .preview-body p { font-size: 15px; margin-bottom: 8px; color: var(--ink-muted-80); }
+  .preview-body ul, .preview-body ol { margin-left: 20px; margin-bottom: 10px; font-size: 15px; color: var(--ink-muted-80); }
+  .preview-body li { margin-bottom: 4px; }
+  .preview-body code { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 13.5px; }
+  .preview-body strong { font-weight: 600; color: var(--ink); }
+  .preview-body em { font-style: italic; }
+  .preview-body a { color: var(--primary); text-decoration: none; }
+  .preview-body blockquote {
+    border-left: 3px solid var(--primary);
+    padding-left: 12px;
+    color: var(--ink-muted-48);
+    margin: 10px 0;
+    font-style: italic;
+  }
+
+  /* Format converter */
+  .converter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 24px;
+  }
+  .target-card {
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    padding: 22px 20px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    position: relative;
+    font-family: inherit;
+  }
+  .target-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 14px 40px rgba(0, 102, 204, 0.12);
+  }
+  .target-card.active {
+    border-color: var(--primary);
+    background: rgba(0, 102, 204, 0.05);
+  }
+  .target-icon {
+    width: 40px; height: 48px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+  .ti-pdf { background: #d93025; }
+  .ti-pptx { background: #d24726; }
+  .ti-docx { background: #2b579a; }
+  .ti-html { background: #e44d26; }
+  .ti-png { background: #5e35b1; }
+  .ti-json { background: #1a73e8; }
+  .target-card h5 {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .target-card p {
+    font-size: 13.5px;
+    color: var(--ink-muted-48);
+    line-height: 1.45;
+  }
+
+  .preview-modal {
+    margin-top: 18px;
+    background: var(--canvas-parchment);
+    border-radius: 18px;
+    padding: 22px;
+    text-align: left;
+    min-height: 130px;
+    transition: opacity 0.3s ease;
+  }
+  .preview-modal h4 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .preview-modal p {
+    font-size: 14.5px;
+    color: var(--ink-muted-80);
+    margin-bottom: 12px;
+  }
+  .preview-modal .code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    background: var(--canvas);
+    padding: 14px;
+    border-radius: 8px;
+    color: var(--ink-muted-80);
+    overflow-x: auto;
+    line-height: 1.55;
+    border: 1px solid var(--hairline);
+  }
+
+  /* Comparison bars */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .compare-card {
+    background: var(--surface-tile-2);
+    border-radius: 22px;
+    padding: 32px 28px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .compare-card.win { border-color: var(--primary-on-dark); }
+  .compare-card h4 {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .compare-card .meta {
+    font-size: 12px;
+    color: var(--body-muted);
+    margin-bottom: 22px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .pct-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .pct-row .lbl { color: var(--body-muted); font-size: 14px; }
+  .pct-row .val {
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .compare-card.win .pct-row .val { color: var(--primary-on-dark); }
+  .bar {
+    height: 8px;
+    border-radius: 9999px;
+    background: rgba(255,255,255,0.1);
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .bar > i {
+    display: block;
+    height: 100%;
+    background: rgba(255,255,255,0.5);
+    border-radius: 9999px;
+    transition: width 1.4s cubic-bezier(.2,.7,.3,1);
+  }
+  .compare-card.win .bar > i { background: var(--primary-on-dark); }
+  .note-list { list-style: none; }
+  .note-list li {
+    font-size: 14px;
+    color: var(--body-muted);
+    padding: 6px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .note-list li:first-child { border-top: none; }
+  .note-list li::before {
+    content: "—";
+    margin-right: 8px;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* Workflow timeline (vertical compact) */
+  .timeline {
+    margin-top: 18px;
+    display: grid;
+    gap: 14px;
+  }
+  .tl-item {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 14px 0;
+  }
+  .tl-num {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--canvas);
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .tl-body h5 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .tl-body p {
+    font-size: 16px;
+    color: var(--ink-muted-80);
+    line-height: 1.5;
+  }
+
+  /* Pull quote */
+  .pull-quote {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4.4vw, 56px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.16;
+    max-width: 1100px;
+  }
+
+  /* Highlight word */
+  .hi {
+    background: linear-gradient(180deg, transparent 60%, rgba(0, 102, 204, 0.18) 60% 92%, transparent 92%);
+    padding: 0 2px;
+  }
+  .slide-dark .hi,
+  .slide-dark-2 .hi,
+  .slide-dark-3 .hi {
+    background: linear-gradient(180deg, transparent 60%, rgba(41, 151, 255, 0.30) 60% 92%, transparent 92%);
+  }
+
+  /* Title-card layout */
+  .title-card {
+    text-align: center;
+  }
+  .title-card .meta {
+    font-size: 14px;
+    color: var(--ink-muted-48);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 20px;
+  }
+  .slide-dark .title-card .meta { color: rgba(255,255,255,0.5); }
+
+  /* Big-stat slide */
+  .big-stat {
+    font-family: var(--font-display);
+    font-size: clamp(80px, 14vw, 220px);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    color: var(--primary);
+  }
+  .slide-dark .big-stat,
+  .slide-dark-2 .big-stat,
+  .slide-dark-3 .big-stat { color: var(--primary-on-dark); }
+
+  /* Three-column big idea */
+  .three-up {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .idea {
+    padding: 28px 22px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .slide-light .idea, .slide-parchment .idea {
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--soft-shadow);
+  }
+  .idea .step {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+  .slide-dark .idea .step,
+  .slide-dark-2 .idea .step,
+  .slide-dark-3 .idea .step { color: var(--primary-on-dark); }
+  .idea h4 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .idea p {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-muted-80);
+  }
+  .slide-dark .idea p,
+  .slide-dark-2 .idea p,
+  .slide-dark-3 .idea p { color: var(--body-muted); }
+
+  /* Build-in (sub-element reveal) */
+  .build {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(.2,.7,.3,1);
+  }
+  .slide.active .build { opacity: 1; transform: translateY(0); }
+  .slide.active .build:nth-of-type(1) { transition-delay: 0.10s; }
+  .slide.active .build:nth-of-type(2) { transition-delay: 0.25s; }
+  .slide.active .build:nth-of-type(3) { transition-delay: 0.40s; }
+  .slide.active .build:nth-of-type(4) { transition-delay: 0.55s; }
+  .slide.active .build:nth-of-type(5) { transition-delay: 0.70s; }
+
+  /* Overview mode */
+  .stage.overview .reel {
+    transform: none !important;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    padding: 70px 22px 22px;
+    background: #111;
+    overflow: auto;
+    height: 100%;
+  }
+  .stage.overview .slide {
+    flex: 0 0 auto;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    transform: scale(1);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    pointer-events: auto;
+    border: 3px solid transparent;
+    transition: border-color 0.25s, transform 0.25s;
+    padding: 14px;
+  }
+  .stage.overview .slide.active { border-color: var(--primary); }
+  .stage.overview .slide:hover { transform: scale(1.02); }
+  .stage.overview .slide-inner { transform: scale(0.42); transform-origin: top left; width: 240%; pointer-events: none; }
+  .stage.overview .nav-zone,
+  .stage.overview .hint-bar,
+  .stage.overview .corner { display: none; }
+
+  /* Responsive */
+  @media (max-width: 833px) {
+    .editor-wrap, .compare-grid, .grid-2, .grid-3, .converter-grid, .three-up { grid-template-columns: 1fr; }
+    .converter-grid { grid-template-columns: 1fr 1fr; }
+    .editor-body, .preview-body { height: 30vh; }
+    .nav-zone .arrow { width: 44px; height: 44px; font-size: 20px; }
+    .nav-zone { width: 25%; }
+    .corner { font-size: 11px; top: 10px; }
+    .corner.left { left: 14px; }
+    .corner.right { right: 14px; }
+    .hint-bar { font-size: 11px; padding: 6px 10px; }
+    .hint-bar kbd { display: none; }
+    h1.title { font-size: clamp(34px, 9vw, 60px); }
+    h2.title { font-size: clamp(28px, 7vw, 46px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="top-bar"><i id="progress" style="width: 0%"></i></div>
+  <div class="corner left" id="cornerLeft">MD가 곧 원본이다 — 강의</div>
+  <div class="corner right" id="cornerRight"><span id="curIdx">1</span> / <span id="totIdx">14</span></div>
+
+  <div class="nav-zone left" id="navLeft" aria-label="이전"><div class="arrow">←</div></div>
+  <div class="nav-zone right" id="navRight" aria-label="다음"><div class="arrow">→</div></div>
+
+  <div class="reel" id="reel">
+
+    <!-- ============================================================
+         Slide 1 — Title
+         ============================================================ -->
+    <section class="slide slide-light" data-bg="light">
+      <div class="slide-inner title-card">
+        <div class="pill build">강의 자료 · 2026</div>
+        <h1 class="title build">MD 파일,<br/>모든 것의 <span class="accent">시작</span>.</h1>
+        <h3 class="subtitle build">Obsidian × Claude Code, 그리고 마크다운이 만드는 자유</h3>
+        <div class="meta build">→ 화살표 · Space · 클릭으로 진행</div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 2 — 학습 목표
+         ============================================================ -->
+    <section class="slide slide-parchment" data-bg="light">
+      <div class="slide-inner">
+        <div class="eyebrow build">이번 시간에</div>
+        <h2 class="title build">우리는 <span class="hi">이 세 가지</span>를<br/>이해하게 됩니다.</h2>
+        <div class="grid-3" style="margin-top: 36px;">
+          <div class="objective build">
+            <div class="num">1</div>
+            <h4>옵시디언이 하는 일</h4>
+            <p>MD 파일을 사람이 보기 편한 형태로 그려주는 도구라는 점.</p>
+          </div>
+          <div class="objective build">
+            <div class="num">2</div>
+            <h4>Claude Code가 하는 일</h4>
+            <p>그 MD 파일을 자동으로 만들어주는 생산자라는 점.</p>
+          </div>
+          <div class="objective build">
+            <div class="num">3</div>
+            <h4>왜 MD를 원본으로</h4>
+            <p>한 번 .md로 두면, 모든 포맷이 자유로워진다는 점.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 3 — 옵시디언이란?
+         ============================================================ -->
+    <section class="slide slide-light" data-bg="light">
+      <div class="slide-inner">
+        <div class="eyebrow build">Obsidian</div>
+        <h2 class="title build">옵시디언은<br/>'<span class="hi">디스플레이어</span>' 입니다.</h2>
+        <p class="lead build" style="margin-top: 24px;">
+          내 컴퓨터에 저장된 <strong>평문 .md 파일</strong>을 — 사람이 읽기 좋은 모습으로 <strong>그려서 보여주는 것</strong>. 그 이상도, 그 이하도 아닙니다.
+        </p>
+        <p class="lead build" style="margin-top: 16px; font-size: clamp(16px, 1.4vw, 19px);">
+          파일은 옵시디언의 것이 아닙니다. 옵시디언이 사라져도, .md 파일은 그대로 남습니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 4 — 옵시디언 라이브 데모
+         ============================================================ -->
+    <section class="slide slide-parchment" data-bg="light">
+      <div class="slide-inner">
+        <div class="eyebrow">Live Demo</div>
+        <h2 class="title">왼쪽이 <span class="accent">실제 .md</span> · 오른쪽이 <span class="accent">옵시디언이 본 화면</span></h2>
+        <div class="editor-wrap">
+          <div class="editor-panel">
+            <div class="editor-head">
+              <span><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> sermon.md</span>
+              <span>Markdown</span>
+            </div>
+            <div class="editor-body">
+              <textarea id="md-input" spellcheck="false"># 사랑의 본질
+
+> "하나님이 세상을 이처럼 사랑하사" — *요 3:16*
+
+## 세 가지 핵심
+1. **무조건적** 사랑
+2. **희생하는** 사랑
+3. **지속되는** 사랑
+
+### 적용
+- 이웃을 향해 한 걸음 더
+- `오늘부터` 작은 실천</textarea>
+            </div>
+          </div>
+          <div class="editor-panel">
+            <div class="editor-head">
+              <span>◇ Obsidian Preview</span>
+              <span>Live</span>
+            </div>
+            <div class="preview-body" id="md-preview"></div>
+          </div>
+        </div>
+        <p style="margin-top: 14px; font-size: 14px; color: var(--ink-muted-48);">
+          ↑ 왼쪽을 직접 수정해 보세요. 오른쪽이 즉시 갱신됩니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 5 — Claude Code란?
+         ============================================================ -->
+    <section class="slide slide-dark" data-bg="dark">
+      <div class="slide-inner">
+        <div class="eyebrow build">Claude Code</div>
+        <h2 class="title build">Claude Code는<br/>'<span class="hi">생산자</span>' 입니다.</h2>
+        <p class="lead build" style="margin-top: 24px;">
+          터미널에서 자연어로 부탁하면 — 글·노트·코드를 <strong style="color:#fff;">.md 파일로 출력</strong>합니다.
+        </p>
+        <p class="lead build" style="margin-top: 16px;">
+          그 출력은 곧바로 옵시디언 볼트에 떨어지고, 옵시디언이 즉시 그려줍니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 6 — Claude Code 터미널 데모
+         ============================================================ -->
+    <section class="slide slide-dark-2" data-bg="dark">
+      <div class="slide-inner">
+        <div class="eyebrow">Live Demo</div>
+        <h2 class="title">"<span class="accent">자연어</span>" 한 줄이<br/>한 장의 <span class="accent">.md</span>가 됩니다.</h2>
+        <div class="editor-wrap">
+          <div class="editor-panel">
+            <div class="editor-head">
+              <span><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> Terminal</span>
+              <span>~/csh_remote</span>
+            </div>
+            <div class="editor-body" id="terminal-body" style="white-space:pre-wrap;"></div>
+          </div>
+          <div class="editor-panel">
+            <div class="editor-head">
+              <span>새 파일 — 출력</span>
+              <span>2026-05-04.md</span>
+            </div>
+            <div class="preview-body" id="output-preview"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 7 — 핵심 통찰
+         ============================================================ -->
+    <section class="slide slide-dark-3" data-bg="dark">
+      <div class="slide-inner" style="text-align:center;">
+        <div class="eyebrow build">핵심 통찰</div>
+        <p class="pull-quote build" style="margin: 0 auto;">
+          두 도구는 서로 다른 일을 하지만,<br/>
+          <span class="accent">같은 .md 파일</span>을 봅니다.
+        </p>
+        <p class="lead build" style="margin: 28px auto 0; max-width: 800px;">
+          Claude Code가 만들고 → 옵시디언이 읽고 → 우리가 옵시디언에서 다듬고 → 다시 Claude Code가 변환합니다.<br/>
+          모두 <strong style="color:#fff;">.md 한 장</strong>을 가운데 두고 돌아갑니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 8 — 변환의 자유 (인터랙티브)
+         ============================================================ -->
+    <section class="slide slide-light" data-bg="light">
+      <div class="slide-inner">
+        <div class="eyebrow">Convert</div>
+        <h2 class="title">하나의 원본,<br/><span class="accent">여섯 개</span>의 출력.</h2>
+        <p class="lead">아래 카드를 클릭해 — 같은 .md가 어떻게 다른 형식이 되는지 보세요.</p>
+
+        <div class="converter-grid" id="targets">
+          <button class="target-card" data-fmt="pptx">
+            <div class="target-icon ti-pptx">PPT</div>
+            <h5>PowerPoint</h5>
+            <p>설교 슬라이드</p>
+          </button>
+          <button class="target-card" data-fmt="pdf">
+            <div class="target-icon ti-pdf">PDF</div>
+            <h5>PDF</h5>
+            <p>인쇄·배포</p>
+          </button>
+          <button class="target-card" data-fmt="docx">
+            <div class="target-icon ti-docx">DOC</div>
+            <h5>Word DOCX</h5>
+            <p>교회 양식</p>
+          </button>
+          <button class="target-card" data-fmt="html">
+            <div class="target-icon ti-html">WEB</div>
+            <h5>인터랙티브 HTML</h5>
+            <p>웹페이지·강의</p>
+          </button>
+          <button class="target-card" data-fmt="png">
+            <div class="target-icon ti-png">IMG</div>
+            <h5>인포그래픽</h5>
+            <p>SNS·카드뉴스</p>
+          </button>
+          <button class="target-card" data-fmt="json">
+            <div class="target-icon ti-json">DB</div>
+            <h5>구조화 데이터</h5>
+            <p>JSON·DB 연동</p>
+          </button>
+        </div>
+
+        <div class="preview-modal" id="convert-preview">
+          <h4>여섯 카드 중 하나를 클릭</h4>
+          <p>각 포맷이 만들어지는 명령어와 결과를 보여드립니다.</p>
+          <div class="code">$ # 위에서 형식을 선택해 주세요</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 9 — 비교: AI 친화도
+         ============================================================ -->
+    <section class="slide slide-dark-2" data-bg="dark">
+      <div class="slide-inner">
+        <div class="eyebrow">왜 MD인가 · 1</div>
+        <h2 class="title">AI는 <span class="accent">평문</span>을 가장 잘 읽습니다.</h2>
+        <div class="compare-grid">
+          <div class="compare-card win">
+            <h4>Markdown</h4>
+            <div class="meta">평문 · 텍스트</div>
+            <div class="pct-row"><span class="lbl">AI 가독성</span><span class="val">100%</span></div>
+            <div class="bar"><i style="width:100%"></i></div>
+            <ul class="note-list">
+              <li>AI가 구조를 한 번에 이해</li>
+              <li>토큰 효율이 가장 높음</li>
+              <li>변환·요약·재구성 자유</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>PPTX / DOCX</h4>
+            <div class="meta">바이너리 · 폐쇄적</div>
+            <div class="pct-row"><span class="lbl">AI 가독성</span><span class="val">35%</span></div>
+            <div class="bar"><i style="width:35%"></i></div>
+            <ul class="note-list">
+              <li>구조 정보가 형식 안에 갇힘</li>
+              <li>파싱이 깨지기 쉬움</li>
+              <li>이미지·텍스트가 분리되지 않음</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 10 — 비교: 변환 자유도
+         ============================================================ -->
+    <section class="slide slide-dark" data-bg="dark">
+      <div class="slide-inner">
+        <div class="eyebrow">왜 MD인가 · 2</div>
+        <h2 class="title">한 번 닫힌 포맷은,<br/><span class="accent">다시 열리지 않습니다.</span></h2>
+        <div class="compare-grid">
+          <div class="compare-card win">
+            <h4>Markdown → 모든 포맷</h4>
+            <div class="meta">출구가 열려 있다</div>
+            <div class="pct-row"><span class="lbl">변환 성공률</span><span class="val">98%</span></div>
+            <div class="bar"><i style="width:98%"></i></div>
+            <ul class="note-list">
+              <li>→ PPT · PDF · DOCX · HTML 모두</li>
+              <li>레이아웃 깨짐 거의 없음</li>
+              <li>한 원본에서 N개 출력</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>PPT → 다른 포맷</h4>
+            <div class="meta">출구가 막혀 있다</div>
+            <div class="pct-row"><span class="lbl">변환 성공률</span><span class="val">22%</span></div>
+            <div class="bar"><i style="width:22%"></i></div>
+            <ul class="note-list">
+              <li>PPT를 Word로 → 깨짐</li>
+              <li>PPT를 HTML로 → 거의 불가</li>
+              <li>매번 처음부터 다시 작업</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 11 — 비교: 장기 보존성
+         ============================================================ -->
+    <section class="slide slide-dark-2" data-bg="dark">
+      <div class="slide-inner">
+        <div class="eyebrow">왜 MD인가 · 3</div>
+        <h2 class="title">MD가 사라질 가능성은<br/><span class="accent">매우 낮습니다.</span></h2>
+        <div class="compare-grid">
+          <div class="compare-card win">
+            <h4>Markdown</h4>
+            <div class="meta">오픈 표준 · 30년+</div>
+            <div class="pct-row"><span class="lbl">장기 보존</span><span class="val">95%</span></div>
+            <div class="bar"><i style="width:95%"></i></div>
+            <ul class="note-list">
+              <li>특정 회사에 종속되지 않음</li>
+              <li>설령 바뀌어도 변환이 쉬움</li>
+              <li>가장 대중적 → 미래 호환 유리</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>독자 포맷</h4>
+            <div class="meta">회사·앱 종속</div>
+            <div class="pct-row"><span class="lbl">장기 보존</span><span class="val">40%</span></div>
+            <div class="bar"><i style="width:40%"></i></div>
+            <ul class="note-list">
+              <li>앱이 사라지면 파일도 위태</li>
+              <li>버전 업그레이드마다 호환 깨짐</li>
+              <li>옮길 때마다 한 번 더 변환 단계</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 12 — PPT의 함정 (인용)
+         ============================================================ -->
+    <section class="slide slide-dark-3" data-bg="dark">
+      <div class="slide-inner" style="text-align:center;">
+        <div class="eyebrow build">메인 소스의 문제</div>
+        <p class="pull-quote build">
+          "메인 소스가 <span class="accent">.md</span>로 되어 있지 않으면,<br/>
+          나머지 파일들은 그저 <span class="accent">호환되지 않는 섬</span>으로 존재한다."
+        </p>
+        <p class="lead build" style="margin: 32px auto 0; max-width: 760px;">
+          PPT를 한 번 만들어두면 — 그것은 그저 PPT일 뿐입니다.<br/>
+          MD에서 PPT로 가는 길은 <strong style="color:#fff;">열려 있고</strong>, 거꾸로 가는 길은 <strong style="color:#fff;">막혀 있습니다.</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 13 — 전체 워크플로우
+         ============================================================ -->
+    <section class="slide slide-light" data-bg="light">
+      <div class="slide-inner">
+        <div class="eyebrow">Workflow</div>
+        <h2 class="title">전체 흐름은<br/>이렇게 작동합니다.</h2>
+        <div class="timeline">
+          <div class="tl-item build">
+            <div class="tl-num">1</div>
+            <div class="tl-body">
+              <h5>Claude Code로 만든다</h5>
+              <p>"이번 주 설교 노트 정리해줘" — 자연어 한 줄이면 정돈된 .md가 출력됩니다.</p>
+            </div>
+          </div>
+          <div class="tl-item build">
+            <div class="tl-num">2</div>
+            <div class="tl-body">
+              <h5>옵시디언이 그려준다</h5>
+              <p>같은 폴더(볼트)를 옵시디언이 읽어 — 위키링크·태그·그래프뷰까지 살아 있는 노트로.</p>
+            </div>
+          </div>
+          <div class="tl-item build">
+            <div class="tl-num">3</div>
+            <div class="tl-body">
+              <h5>옵시디언에서 직접 다듬는다</h5>
+              <p>위키링크 걸기, 메모 추가, 본문 다듬기 — 모두 옵시디언에서. 파일은 여전히 .md.</p>
+            </div>
+          </div>
+          <div class="tl-item build">
+            <div class="tl-num">4</div>
+            <div class="tl-body">
+              <h5>다시 Claude Code에게 변환을 부탁한다</h5>
+              <p>"PPT로 만들어줘", "교사용 DOCX로 묶어줘" — 같은 원본에서 필요한 형식만 그때그때.</p>
+            </div>
+          </div>
+          <div class="tl-item build">
+            <div class="tl-num">5</div>
+            <div class="tl-body">
+              <h5>원본은 하나, 출력은 무한</h5>
+              <p>주일은 PPT, 월간 자료는 DOCX, 공유는 HTML, SNS는 인포그래픽 — 모두 같은 .md에서.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Slide 14 — 마무리
+         ============================================================ -->
+    <section class="slide slide-light" data-bg="light">
+      <div class="slide-inner title-card">
+        <div class="pill build">정리</div>
+        <h1 class="title build">
+          모든 것은 <span class="accent">.md</span>에서<br/>시작합니다.
+        </h1>
+        <h3 class="subtitle build" style="margin-top: 24px;">
+          오늘부터, 노트 한 장을 .md로 — 미래의 모든 형식이 그 안에 들어갑니다.
+        </h3>
+        <div class="meta build" style="margin-top: 40px;">감사합니다 · 질의응답</div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="hint-bar" id="hintBar">
+    <kbd>←</kbd><kbd>→</kbd> 이동 ·
+    <kbd>Space</kbd> 다음 ·
+    <kbd>F</kbd> 전체화면 ·
+    <kbd>O</kbd> 오버뷰 ·
+    <kbd>Home</kbd>/<kbd>End</kbd> 처음/끝
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   1) Slide controller
+   ========================================================= */
+const stage = document.getElementById("stage");
+const reel = document.getElementById("reel");
+const slides = Array.from(document.querySelectorAll(".slide"));
+const total = slides.length;
+const progress = document.getElementById("progress");
+const curEl = document.getElementById("curIdx");
+const totEl = document.getElementById("totIdx");
+const hintBar = document.getElementById("hintBar");
+totEl.textContent = total;
+
+let cur = 0;
+
+function applyBg() {
+  const bg = slides[cur].dataset.bg || "light";
+  stage.dataset.bg = bg;
+}
+function go(idx, push = true) {
+  cur = Math.max(0, Math.min(total - 1, idx));
+  reel.style.transform = `translateX(-${cur * 100}%)`;
+  slides.forEach((s, i) => s.classList.toggle("active", i === cur));
+  progress.style.width = `${((cur + 1) / total) * 100}%`;
+  curEl.textContent = cur + 1;
+  applyBg();
+  if (push) history.replaceState(null, "", `#${cur + 1}`);
+}
+function next() { go(cur + 1); }
+function prev() { go(cur - 1); }
+
+/* Initial slide from hash */
+const initial = parseInt(location.hash.replace("#", ""), 10);
+go(Number.isFinite(initial) && initial >= 1 ? initial - 1 : 0, false);
+
+/* =========================================================
+   2) Keyboard controls
+   ========================================================= */
+document.addEventListener("keydown", (e) => {
+  // Don't intercept when typing inside the textarea
+  if (e.target && e.target.tagName === "TEXTAREA") {
+    if (!(e.key === "PageDown" || e.key === "PageUp")) return;
+  }
+  switch (e.key) {
+    case "ArrowRight":
+    case " ":
+    case "PageDown":
+      e.preventDefault(); next(); break;
+    case "ArrowLeft":
+    case "PageUp":
+      e.preventDefault(); prev(); break;
+    case "Home":
+      e.preventDefault(); go(0); break;
+    case "End":
+      e.preventDefault(); go(total - 1); break;
+    case "f": case "F":
+      toggleFullscreen(); break;
+    case "o": case "O":
+      stage.classList.toggle("overview"); break;
+    case "Escape":
+      if (stage.classList.contains("overview")) stage.classList.remove("overview");
+      break;
+  }
+});
+
+/* Click zones */
+document.getElementById("navLeft").addEventListener("click", prev);
+document.getElementById("navRight").addEventListener("click", next);
+
+/* Overview click → jump to slide */
+slides.forEach((s, i) => {
+  s.addEventListener("click", () => {
+    if (stage.classList.contains("overview")) {
+      stage.classList.remove("overview");
+      setTimeout(() => go(i), 50);
+    }
+  });
+});
+
+/* Touch swipe */
+let tx = null;
+stage.addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; }, { passive: true });
+stage.addEventListener("touchend", (e) => {
+  if (tx === null) return;
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 60) (dx < 0 ? next : prev)();
+  tx = null;
+});
+
+/* Hash change (back/forward) */
+window.addEventListener("hashchange", () => {
+  const n = parseInt(location.hash.replace("#", ""), 10);
+  if (Number.isFinite(n)) go(n - 1, false);
+});
+
+/* Auto-fade hint after 4s of inactivity */
+let hintTimer;
+function bumpHint() {
+  hintBar.classList.remove("fade");
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => hintBar.classList.add("fade"), 4000);
+}
+["mousemove", "keydown", "touchstart"].forEach(ev => window.addEventListener(ev, bumpHint, { passive: true }));
+bumpHint();
+
+/* Fullscreen */
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.();
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+/* =========================================================
+   3) Markdown renderer (lightweight)
+   ========================================================= */
+function renderMD(src) {
+  const escape = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const lines = src.split(/\r?\n/);
+  let html = "";
+  let inList = null;
+  let inBQ = false;
+  function closeList() { if (inList) { html += `</${inList}>`; inList = null; } }
+  function closeBQ() { if (inBQ) { html += `</blockquote>`; inBQ = false; } }
+  function inline(t) {
+    t = escape(t);
+    t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+    t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    t = t.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+    t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    return t;
+  }
+  for (let raw of lines) {
+    const line = raw;
+    if (/^\s*$/.test(line)) { closeList(); closeBQ(); continue; }
+    let m;
+    if ((m = line.match(/^(#{1,6})\s+(.*)$/))) {
+      closeList(); closeBQ();
+      const lvl = m[1].length;
+      html += `<h${lvl}>${inline(m[2])}</h${lvl}>`;
+      continue;
+    }
+    if ((m = line.match(/^>\s?(.*)$/))) {
+      closeList();
+      if (!inBQ) { html += "<blockquote>"; inBQ = true; }
+      html += inline(m[1]) + "<br/>";
+      continue;
+    }
+    if ((m = line.match(/^\s*[-*+]\s+(.*)$/))) {
+      closeBQ();
+      if (inList !== "ul") { closeList(); html += "<ul>"; inList = "ul"; }
+      html += `<li>${inline(m[1])}</li>`;
+      continue;
+    }
+    if ((m = line.match(/^\s*\d+\.\s+(.*)$/))) {
+      closeBQ();
+      if (inList !== "ol") { closeList(); html += "<ol>"; inList = "ol"; }
+      html += `<li>${inline(m[1])}</li>`;
+      continue;
+    }
+    closeList(); closeBQ();
+    html += `<p>${inline(line)}</p>`;
+  }
+  closeList(); closeBQ();
+  return html;
+}
+
+const mdInput = document.getElementById("md-input");
+const mdPreview = document.getElementById("md-preview");
+function syncPreview() { mdPreview.innerHTML = renderMD(mdInput.value); }
+mdInput.addEventListener("input", syncPreview);
+syncPreview();
+
+/* =========================================================
+   4) Terminal animation (slide 6)
+   ========================================================= */
+const termEl = document.getElementById("terminal-body");
+const outEl = document.getElementById("output-preview");
+const script = [
+  { who: "user", text: "$ claude\n" },
+  { who: "user", text: "> 오늘 설교 핵심 세 가지를 정리해서 새 노트로 만들어줘\n" },
+  { who: "claude", text: "✓ 새 파일 생성: 2026-05-04.md\n" },
+  { who: "claude", text: "✓ 옵시디언 볼트에 저장됨\n" },
+  { who: "claude", text: "✓ 위키링크 3개 자동 연결\n" },
+  { who: "user", text: "$ open obsidian://open?file=2026-05-04\n" }
+];
+const finalOutput = `# 2026-05-04 주일 설교
+
+## 핵심 세 가지
+1. **하나님의 사랑은 무조건적이다.**
+2. **그 사랑은 십자가에서 증명된다.**
+3. **우리는 그 사랑으로 이웃을 사랑한다.**
+
+## 본문
+> 요한복음 3:16
+
+## 연결
+- [[하나님의 사랑]]
+- [[십자가의 의미]]
+- [[이웃 사랑의 실천]]`;
+
+let termPlayed = false;
+function playTerminal() {
+  if (termPlayed) return;
+  termPlayed = true;
+  termEl.textContent = "";
+  let i = 0;
+  function nextLine() {
+    if (i >= script.length) {
+      setTimeout(() => { outEl.innerHTML = renderMD(finalOutput); }, 200);
+      return;
+    }
+    const piece = script[i];
+    let j = 0;
+    const interval = setInterval(() => {
+      termEl.textContent += piece.text[j];
+      termEl.scrollTop = termEl.scrollHeight;
+      j++;
+      if (j >= piece.text.length) {
+        clearInterval(interval);
+        i++;
+        setTimeout(nextLine, piece.who === "user" ? 220 : 380);
+      }
+    }, piece.who === "user" ? 28 : 14);
+  }
+  nextLine();
+}
+
+/* Replay terminal each time slide 6 becomes active (if it was already played, just show output) */
+function maybeStartDemo() {
+  const idx6 = slides.findIndex(s => s.querySelector("#terminal-body"));
+  if (idx6 >= 0 && cur === idx6) {
+    if (!termPlayed) playTerminal();
+  }
+}
+const _go = go;
+go = function (idx, push = true) {
+  _go(idx, push);
+  maybeStartDemo();
+};
+maybeStartDemo();
+
+/* =========================================================
+   5) Format converter (slide 8)
+   ========================================================= */
+const convertSamples = {
+  pptx: {
+    title: "PowerPoint로 변환",
+    desc: "MD의 # 헤딩이 슬라이드 제목, 리스트가 불릿이 됩니다. 한 번에 발표용 PPT가 완성됩니다.",
+    code: `$ claude "sermon.md를 5장짜리 PPT로 만들어줘"
+✓ Slide 1: 제목 — 사랑의 본질
+✓ Slide 2: 본문 — 요 3:16
+✓ Slide 3: 핵심 1 — 무조건적 사랑
+✓ Slide 4: 핵심 2 — 희생하는 사랑
+✓ Slide 5: 적용 — 이웃 사랑
+→ sermon.pptx 저장됨`
+  },
+  pdf: {
+    title: "PDF로 변환",
+    desc: "인쇄·배포에 적합한 단일 문서로. 폰트와 레이아웃이 어디서나 동일하게 보입니다.",
+    code: `$ claude "sermon.md를 깔끔한 PDF로 출력"
+✓ 표지 생성 — 설교 제목·날짜·교회명
+✓ 본문 레이아웃 — 2단 조판
+✓ 페이지 번호·푸터 자동
+→ sermon.pdf 저장됨 (3 pages)`
+  },
+  docx: {
+    title: "Word DOCX로 변환",
+    desc: "교회 양식·서식을 그대로 적용한 워드 문서. 제목 스타일·목차·각주까지 자동.",
+    code: `$ claude "이번달 설교 4편을 교사용 DOCX로 묶어줘"
+✓ 표지 자동 생성
+✓ 목차(TOC) 삽입
+✓ 각 설교 → 챕터로 정리
+✓ 교회 로고·푸터 적용
+→ 2026-05-교사용.docx 저장됨`
+  },
+  html: {
+    title: "인터랙티브 HTML로 변환",
+    desc: "지금 보고 계신 이 슬라이드처럼 — 애니메이션·클릭·반응형까지 들어간 웹페이지로.",
+    code: `$ claude "이 강의안을 인터랙티브 슬라이드 HTML로"
+✓ 슬라이드 14장 자동 분할
+✓ 키보드/스와이프 내비게이션
+✓ 모바일/데스크톱 반응형
+→ lecture.html 저장됨 (즉시 공유)`
+  },
+  png: {
+    title: "인포그래픽으로 변환",
+    desc: "MD의 핵심 메시지를 카드뉴스·SNS용 이미지로. 각 헤딩이 한 장씩.",
+    code: `$ claude "핵심 세 가지를 카드뉴스 3장으로"
+✓ Card 1: 무조건적 사랑 (1080×1080)
+✓ Card 2: 희생하는 사랑 (1080×1080)
+✓ Card 3: 지속되는 사랑 (1080×1080)
+→ /infographics/ 폴더에 저장`
+  },
+  json: {
+    title: "구조화 데이터로 변환",
+    desc: "MD를 JSON·DB로. 검색·통계·외부 시스템 연동에 그대로 쓸 수 있습니다.",
+    code: `$ claude "올해 설교 전체를 본문·핵심·태그 JSON으로"
+{
+  "date": "2026-05-04",
+  "scripture": "요 3:16",
+  "themes": ["사랑", "구원", "은혜"],
+  "key_points": ["...", "...", "..."]
+}`
+  }
+};
+const convertEl = document.getElementById("convert-preview");
+document.querySelectorAll(".target-card").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".target-card").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const fmt = btn.dataset.fmt;
+    const s = convertSamples[fmt];
+    convertEl.style.opacity = 0;
+    setTimeout(() => {
+      convertEl.innerHTML = `
+        <h4>${s.title}</h4>
+        <p>${s.desc}</p>
+        <div class="code">${s.code.replace(/</g,"&lt;")}</div>
+      `;
+      convertEl.style.opacity = 1;
+    }, 180);
+  });
+});
+
+</script>
+</body>
+</html>
