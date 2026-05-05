@@ -88,13 +88,13 @@
   .poster {
     display: grid;
     grid-template-columns: minmax(180px, 0.5fr) 1fr;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto auto;
     grid-template-areas:
       "num   meta"
       "num   key"
       "scrip foot";
-    gap: clamp(24px, 3vw, 48px);
-    width: 100%; height: 100%;
+    gap: clamp(20px, 2.4vw, 36px);
+    width: 100%; height: auto;
     align-items: start;
   }
   .poster .num-mega {
