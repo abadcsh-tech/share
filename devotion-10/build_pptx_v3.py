@@ -116,17 +116,17 @@ def bg_canvas(slide, color):
 
 def page_footer(slide, n, dark=False):
     cap_color = C["on_dark_soft"] if dark else C["muted"]
-    add_text(slide, PAD, H - 0.45, 6, 0.3,
+    add_text(slide, PAD, H - 0.55, 7, 0.4,
              "한 가족이 되신 예수님 · 5일 묵상",
-             font=FONT_SANS, size=10, bold=True, color=cap_color, char_spacing=300)
-    add_text(slide, W - 1.6, H - 0.45, 1.4, 0.3,
+             font=FONT_SANS, size=16, bold=True, color=cap_color, char_spacing=300)
+    add_text(slide, W - 2.0, H - 0.55, 1.8, 0.4,
              f"{n:02d} / {TOTAL:02d}",
-             font=FONT_SANS, size=10, bold=True, color=cap_color, align="right", char_spacing=300)
+             font=FONT_SANS, size=16, bold=True, color=cap_color, align="right", char_spacing=300)
 
 def label(slide, text, dark=False, y=PAD - 0.05):
     color = C["on_dark"] if dark else C["muted"]
-    add_text(slide, PAD, y, CW, 0.4, text,
-             font=FONT_SANS, size=20, bold=True, color=color, char_spacing=400)
+    add_text(slide, PAD, y, CW, 0.45, text,
+             font=FONT_SANS, size=22, bold=True, color=color, char_spacing=400)
 
 # ============================================================
 # Slide 1: Series intro
@@ -137,9 +137,9 @@ label(s, "사도신경 강해 10 · 죽으시고, 장사된 지")
 add_text(s, PAD, 1.4, CW, 2.0,
          "한 가족이 되신 예수님,\n다섯 날의 묵상.",
          font=FONT_DISPLAY, size=56, bold=True, color=C["ink"], line_spacing=1.1)
-add_text(s, PAD, 3.5, CW * 0.7, 0.6,
+add_text(s, PAD, 3.5, CW * 0.85, 0.7,
          "매일 한 편씩 — 본문 한 구절, 핵심 한 문장, 짧은 묵상글과 기도.",
-         font=FONT_SANS, size=22, bold=True, color=C["body"], auto_size=True)
+         font=FONT_SANS, size=24, bold=True, color=C["body"], auto_size=True)
 
 # 5-day grid
 tile_w = (CW - 0.6) / 5
@@ -156,12 +156,12 @@ for i, (num, scrip, ttl) in enumerate(tiles):
     x = PAD + i * (tile_w + 0.15)
     # Subtle hairline border, no fill — minimal
     rect = add_rect(s, x, tile_y, tile_w, tile_h, C["canvas"], line_color=C["hairline"])
-    add_text(s, x + 0.25, tile_y + 0.3, tile_w - 0.5, 0.3,
-             num, font=FONT_SANS, size=14, bold=True, color=C["primary"], char_spacing=600)
-    add_text(s, x + 0.25, tile_y + 0.65, tile_w - 0.5, 0.3,
-             scrip, font=FONT_SANS, size=12, bold=True, color=C["muted"], char_spacing=400)
-    add_text(s, x + 0.25, tile_y + tile_h - 1.3, tile_w - 0.5, 1.2,
-             ttl, font=FONT_DISPLAY, size=22, bold=True, color=C["ink"],
+    add_text(s, x + 0.25, tile_y + 0.3, tile_w - 0.5, 0.4,
+             num, font=FONT_SANS, size=18, bold=True, color=C["primary"], char_spacing=600)
+    add_text(s, x + 0.25, tile_y + 0.75, tile_w - 0.5, 0.4,
+             scrip, font=FONT_SANS, size=16, bold=True, color=C["muted"], char_spacing=400)
+    add_text(s, x + 0.25, tile_y + tile_h - 1.4, tile_w - 0.5, 1.3,
+             ttl, font=FONT_DISPLAY, size=24, bold=True, color=C["ink"],
              line_spacing=1.18, valign="bottom")
 page_footer(s, 1)
 
@@ -182,26 +182,26 @@ def build_day(num, label_txt, ttl1, ttl2, sub, scrip, scrip_cite,
     text_w = 6.5  # left column width
     label(s, f"DAY 0{num} · {label_txt}", dark=is_dark)
     # Display title
-    add_text(s, PAD, 1.5, text_w, 2.4,
+    add_text(s, PAD, 1.4, text_w, 2.5,
              f"{ttl1}\n{ttl2}",
-             font=FONT_DISPLAY, size=56, bold=True,
+             font=FONT_DISPLAY, size=58, bold=True,
              color=(C["on_dark"] if is_dark else C["ink"]),
              line_spacing=1.1, auto_size=True)
     # Subhead
-    add_text(s, PAD, 4.2, text_w, 1.0, sub,
-             font=FONT_SANS, size=22, bold=True,
+    add_text(s, PAD, 4.1, text_w, 1.1, sub,
+             font=FONT_SANS, size=24, bold=True,
              color=(C["on_dark_soft"] if is_dark else C["body"]),
-             line_spacing=1.4, auto_size=True)
+             line_spacing=1.45, auto_size=True)
     # Scripture: open with coral left border
-    add_rect(s, PAD, 5.5, 0.06, 1.4, C["primary"])
-    add_text(s, PAD + 0.22, 5.45, text_w - 0.22, 1.5,
+    add_rect(s, PAD, 5.35, 0.06, 1.6, C["primary"])
+    add_text(s, PAD + 0.22, 5.30, text_w - 0.22, 1.6,
              f'"{scrip}"',
-             font=FONT_DISPLAY, size=24, bold=True,
+             font=FONT_DISPLAY, size=28, bold=True,
              color=(C["on_dark"] if is_dark else C["ink"]),
-             line_spacing=1.32, auto_size=True)
-    add_text(s, PAD + 0.22, 6.7, text_w - 0.22, 0.3,
+             line_spacing=1.34, auto_size=True)
+    add_text(s, PAD + 0.22, 6.75, text_w - 0.22, 0.4,
              scrip_cite,
-             font=FONT_SANS, size=14, bold=True,
+             font=FONT_SANS, size=21, bold=True,
              color=(C["on_dark_soft"] if is_dark else C["muted"]),
              char_spacing=400)
 
@@ -219,18 +219,18 @@ def build_day(num, label_txt, ttl1, ttl2, sub, scrip, scrip_cite,
     s = prs.slides.add_slide(BLANK)
     bg_canvas(s, C["canvas"])
     label(s, f"DAY 0{num} · 묵상")
-    # Key pull quote
-    add_text(s, PAD, 1.5, CW * 0.85, 2.0,
+    # Key pull quote — wide enough that single line never wraps mid-word
+    add_text(s, PAD, 1.4, CW, 2.2,
              f"{key1}\n{key2}",
-             font=FONT_DISPLAY, size=42, bold=True, color=C["ink"],
-             line_spacing=1.18, auto_size=True)
+             font=FONT_DISPLAY, size=46, bold=True, color=C["ink"],
+             line_spacing=1.2, auto_size=True)
     # Meditation paragraphs (auto-size guards against overflow)
-    add_text(s, PAD, 3.8, CW * 0.85, 1.4, med_p1,
-             font=FONT_SANS, size=20, bold=True, color=C["body"],
-             line_spacing=1.6, auto_size=True)
-    add_text(s, PAD, 5.4, CW * 0.85, 1.6, med_p2,
-             font=FONT_SANS, size=20, bold=True, color=C["body"],
-             line_spacing=1.6, auto_size=True)
+    add_text(s, PAD, 3.9, CW * 0.92, 1.5, med_p1,
+             font=FONT_SANS, size=24, bold=True, color=C["body"],
+             line_spacing=1.65, auto_size=True)
+    add_text(s, PAD, 5.6, CW * 0.92, 1.4, med_p2,
+             font=FONT_SANS, size=24, bold=True, color=C["body"],
+             line_spacing=1.65, auto_size=True)
     page_footer(s, base_idx + 1)
 
     # === Slide C: Application + Prayer (open composition, no boxes) ===
@@ -238,25 +238,25 @@ def build_day(num, label_txt, ttl1, ttl2, sub, scrip, scrip_cite,
     bg_canvas(s, C["card"])
     label(s, f"DAY 0{num} · 적용 + 기도")
     # App headline
-    add_text(s, PAD, 1.5, CW, 1.4, app_h,
-             font=FONT_DISPLAY, size=36, bold=True, color=C["ink"],
+    add_text(s, PAD, 1.4, CW, 1.4, app_h,
+             font=FONT_DISPLAY, size=38, bold=True, color=C["ink"],
              line_spacing=1.25, auto_size=True)
     # Two questions — open type, just numbers + text, no boxes
-    add_text(s, PAD, 3.0, 0.7, 0.4,
-             "01", font=FONT_SANS, size=14, bold=True, color=C["primary"], char_spacing=400)
-    add_text(s, PAD + 0.7, 2.95, CW - 0.7, 0.9, q1,
-             font=FONT_SANS, size=20, bold=True, color=C["ink"],
+    add_text(s, PAD, 2.95, 0.8, 0.4,
+             "01", font=FONT_SANS, size=18, bold=True, color=C["primary"], char_spacing=400)
+    add_text(s, PAD + 0.8, 2.9, CW - 1.0, 1.0, q1,
+             font=FONT_SANS, size=22, bold=True, color=C["ink"],
              line_spacing=1.55, auto_size=True)
-    add_text(s, PAD, 4.2, 0.7, 0.4,
-             "02", font=FONT_SANS, size=14, bold=True, color=C["primary"], char_spacing=400)
-    add_text(s, PAD + 0.7, 4.15, CW - 0.7, 0.9, q2,
-             font=FONT_SANS, size=20, bold=True, color=C["ink"],
+    add_text(s, PAD, 4.25, 0.8, 0.4,
+             "02", font=FONT_SANS, size=18, bold=True, color=C["primary"], char_spacing=400)
+    add_text(s, PAD + 0.8, 4.20, CW - 1.0, 1.0, q2,
+             font=FONT_SANS, size=22, bold=True, color=C["ink"],
              line_spacing=1.55, auto_size=True)
     # Coral hairline divider
     add_rect(s, PAD, 5.6, 1.0, 0.04, C["primary"])
     # Prayer
-    add_text(s, PAD, 5.85, CW * 0.85, 1.4, prayer,
-             font=FONT_DISPLAY, size=22, bold=True, color=C["ink"],
+    add_text(s, PAD, 5.85, CW * 0.92, 1.4, prayer,
+             font=FONT_DISPLAY, size=26, bold=True, color=C["ink"],
              line_spacing=1.55, auto_size=True)
     page_footer(s, base_idx + 2)
 
