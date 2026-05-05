@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>5일 묵상 — 한 가족이 되신 예수님 (V2: 클로드.com 디자인)</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/suit@3.0.1/dist/suit.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Anthropic claude.com palette */
+    --primary: #cc785c;
+    --primary-active: #a9583e;
+    --canvas: #faf9f5;
+    --surface-soft: #f5f0e8;
+    --surface-card: #efe9de;
+    --surface-cream-strong: #e8e0d2;
+    --surface-dark: #181715;
+    --surface-dark-elevated: #252320;
+    --surface-dark-soft: #1f1e1b;
+    --hairline: #e6dfd8;
+    --ink: #141413;
+    --body-strong: #252523;
+    --body: #3d3d3a;
+    --muted: #6c6a64;
+    --muted-soft: #8e8b82;
+    --on-primary: #ffffff;
+    --on-dark: #faf9f5;
+    --on-dark-soft: #a09d96;
+
+    /* Fonts (Korean + Latin) */
+    --font-display: "Nanum Myeongjo", "NanumMyeongjo", "Noto Serif KR", Georgia, serif;
+    --font-sans: "SUIT", "SUIT Variable", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; font-family: var(--font-sans); color: var(--ink); background: #000; -webkit-font-smoothing: antialiased; }
+
+  .stage { position: fixed; inset: 0; overflow: hidden; }
+  .reel { position: relative; height: 100%; width: 100%; perspective: 1800px; transform-style: preserve-3d; }
+  .slide {
+    position: absolute; inset: 0; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    padding: clamp(36px, 5.5vh, 72px) clamp(36px, 6.5vw, 100px);
+    opacity: 0; pointer-events: none;
+    transform: translateX(100%); transform-origin: 50% 50%;
+    backface-visibility: hidden; will-change: transform, opacity;
+  }
+  .slide.is-animating { transition: transform 0.7s cubic-bezier(.65,0,.2,1), opacity 0.55s ease; }
+  .slide.is-current { opacity: 1; pointer-events: auto; transform: translateX(0); z-index: 2; }
+  .slide.is-prev { transform: translateX(-100%); opacity: 1; }
+  .slide.is-next { transform: translateX(100%); opacity: 1; }
+
+  /* Surface modes */
+  .bg-canvas { background: var(--canvas); color: var(--ink); }
+  .bg-card   { background: var(--surface-card); color: var(--ink); }
+  .bg-cream-strong { background: var(--surface-cream-strong); color: var(--ink); }
+  .bg-dark   { background: var(--surface-dark); color: var(--on-dark); }
+  .bg-coral  { background: var(--primary); color: var(--on-primary); }
+
+  .slide-inner { width: 100%; max-width: 1200px; margin: 0 auto; }
+
+  /* Type roles — sized per user spec (16:9 13.333×7.5") */
+  .label {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(15px, 1.5vw, 20px); letter-spacing: 0.04em;
+    text-transform: uppercase; color: currentColor;
+    margin-bottom: 28px;
+    display: inline-flex; gap: 12px; align-items: center; opacity: 0.78;
+  }
+  .label .spike {
+    font-family: var(--font-sans); font-size: 14px; font-weight: 700;
+    color: var(--primary); display: inline-block; transform: translateY(-1px);
+  }
+  .bg-dark .label .spike, .bg-coral .label .spike { color: var(--on-dark); }
+
+  .display-xl {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(48px, 7.2vw, 96px);
+    line-height: 1.06; letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+  .display-lg {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(40px, 5.4vw, 72px);
+    line-height: 1.10; letter-spacing: -0.025em;
+    margin-bottom: 22px;
+  }
+  .display-md {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(34px, 4.4vw, 56px);
+    line-height: 1.18; letter-spacing: -0.02em;
+    margin-bottom: 18px;
+  }
+  .subhead {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(22px, 2.4vw, 32px);
+    line-height: 1.4; letter-spacing: -0.01em;
+    max-width: 28em; margin-bottom: 28px;
+    color: var(--body-strong);
+  }
+  .bg-dark .subhead, .bg-coral .subhead { color: var(--on-dark); }
+
+  .body-lg {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(22px, 2vw, 28px);
+    line-height: 1.55; letter-spacing: -0.01em;
+    color: var(--body); max-width: 38em;
+  }
+  .bg-dark .body-lg { color: var(--on-dark-soft); }
+  .bg-coral .body-lg { color: var(--on-primary); opacity: 0.95; }
+  .strong { color: var(--ink); }
+  .bg-dark .strong, .bg-coral .strong { color: var(--on-dark); }
+
+  /* Scripture block (cream version) */
+  .scripture {
+    margin-top: 32px; padding: 12px 0 12px 22px;
+    border-left: 4px solid var(--primary); max-width: 50em;
+  }
+  .scripture .quote {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(34px, 4vw, 50px);
+    line-height: 1.32; letter-spacing: -0.018em;
+    color: var(--ink);
+  }
+  .scripture .cite {
+    margin-top: 14px;
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(20px, 1.5vw, 22px); letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* Scripture in dark box — used inside cream slides */
+  .scripture-card-dark {
+    margin-top: 32px;
+    background: var(--surface-dark); color: var(--on-dark);
+    border-radius: 12px; padding: 32px 36px;
+    max-width: 50em;
+  }
+  .scripture-card-dark .quote {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(30px, 3.4vw, 44px);
+    line-height: 1.32; letter-spacing: -0.018em;
+    color: var(--on-dark);
+  }
+  .scripture-card-dark .cite {
+    margin-top: 16px;
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(20px, 1.5vw, 22px); letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--on-dark-soft);
+  }
+
+  /* Application questions */
+  .questions { display: grid; gap: 18px; max-width: 50em; margin-top: 24px; }
+  .q {
+    display: grid; grid-template-columns: 44px 1fr; gap: 18px;
+    padding: 22px 26px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    align-items: start;
+  }
+  .bg-card .q { background: rgba(255,255,255,0.55); border-color: var(--hairline); }
+  .bg-dark .q { background: var(--surface-dark-elevated); border-color: rgba(255,255,255,0.06); color: var(--on-dark); }
+  .bg-coral .q { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.25); color: var(--on-primary); }
+  .q .num {
+    font-family: var(--font-mono); font-weight: 500; font-size: 16px;
+    padding-top: 4px; color: var(--primary);
+  }
+  .bg-dark .q .num { color: var(--primary); }
+  .bg-coral .q .num { color: var(--on-primary); opacity: 0.9; }
+  .q .text {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(20px, 1.7vw, 24px);
+    line-height: 1.5; letter-spacing: -0.01em;
+  }
+
+  /* Prayer */
+  .prayer-text {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(28px, 3.4vw, 44px);
+    line-height: 1.4; letter-spacing: -0.02em;
+    color: var(--ink); max-width: 30em;
+  }
+  .bg-dark .prayer-text, .bg-coral .prayer-text { color: var(--on-dark); }
+  .amen {
+    display: inline-block; margin-top: 22px;
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(18px, 1.4vw, 22px); letter-spacing: 0.05em;
+  }
+
+  /* Series intro grid */
+  .day-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;
+    max-width: 1100px; margin-top: 36px;
+  }
+  .day-tile {
+    padding: 26px 22px; border-radius: 12px;
+    display: flex; flex-direction: column; gap: 10px;
+    min-height: 230px; color: var(--ink);
+    border: 1px solid var(--hairline);
+    background: var(--canvas);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .day-tile:hover { transform: translateY(-3px); border-color: var(--primary); }
+  .day-tile.featured { background: var(--surface-dark); color: var(--on-dark); border-color: var(--surface-dark); }
+  .day-tile .num {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--primary);
+  }
+  .day-tile .scrip {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .day-tile.featured .scrip { color: var(--on-dark-soft); }
+  .day-tile .ttl {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 22px; line-height: 1.18; letter-spacing: -0.02em;
+    margin-top: auto;
+  }
+
+  /* Top progress + corners */
+  .top-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: rgba(20,20,19,0.06); z-index: 60; }
+  .top-bar i { display: block; height: 100%; background: var(--primary); transition: width 0.6s cubic-bezier(.2,.7,.3,1); }
+  .stage[data-bg="dark"] .top-bar { background: rgba(255,255,255,0.08); }
+  .stage[data-bg="coral"] .top-bar { background: rgba(255,255,255,0.18); }
+  .stage[data-bg="coral"] .top-bar i { background: var(--on-primary); }
+
+  .corner {
+    position: fixed; top: 14px; z-index: 55;
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: rgba(20,20,19,0.55); user-select: none; pointer-events: none;
+  }
+  .stage[data-bg="dark"] .corner { color: rgba(255,255,255,0.55); }
+  .stage[data-bg="coral"] .corner { color: rgba(255,255,255,0.7); }
+  .corner.left { left: 22px; }
+  .corner.right { right: 22px; font-variant-numeric: tabular-nums; }
+
+  .nav-zone { position: fixed; top: 0; bottom: 0; width: 18%; z-index: 30; cursor: pointer; }
+  .nav-zone.left { left: 0; }
+  .nav-zone.right { right: 0; }
+  .nav-zone .arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 50px; height: 50px; border-radius: 8px;
+    background: rgba(20,20,19,0.06); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; opacity: 0; transition: opacity 0.25s;
+  }
+  .nav-zone.left .arrow { left: 22px; }
+  .nav-zone.right .arrow { right: 22px; }
+  .nav-zone:hover .arrow { opacity: 1; }
+  .stage[data-bg="dark"] .nav-zone .arrow { background: rgba(255,255,255,0.12); color: var(--on-dark); }
+  .stage[data-bg="coral"] .nav-zone .arrow { background: rgba(255,255,255,0.18); color: var(--on-primary); }
+
+  .hint-bar {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+    z-index: 55;
+    display: flex; gap: 10px; align-items: center;
+    background: rgba(250,249,245,0.85);
+    backdrop-filter: saturate(180%) blur(16px); -webkit-backdrop-filter: saturate(180%) blur(16px);
+    border: 1px solid var(--hairline);
+    padding: 8px 14px; border-radius: 8px;
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: 12px; letter-spacing: 0.04em;
+    color: var(--muted);
+    transition: opacity 0.6s ease;
+  }
+  .hint-bar.fade { opacity: 0.18; }
+  .hint-bar:hover { opacity: 1 !important; }
+  .stage[data-bg="dark"] .hint-bar { background: rgba(40,40,40,0.7); border-color: rgba(255,255,255,0.08); color: var(--on-dark-soft); }
+  .stage[data-bg="coral"] .hint-bar { background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.18); color: var(--on-primary); }
+  .hint-bar kbd {
+    background: rgba(20,20,19,0.06); border-radius: 4px; padding: 2px 6px;
+    font-family: var(--font-mono); font-size: 11px;
+  }
+
+  /* Build-in animation */
+  .build {
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 0.55s ease, transform 0.55s cubic-bezier(.2,.7,.3,1);
+  }
+  .slide.is-current .build { opacity: 1; transform: translateY(0); }
+  .slide.is-current .build:nth-of-type(1) { transition-delay: 0.10s; }
+  .slide.is-current .build:nth-of-type(2) { transition-delay: 0.22s; }
+  .slide.is-current .build:nth-of-type(3) { transition-delay: 0.34s; }
+  .slide.is-current .build:nth-of-type(4) { transition-delay: 0.46s; }
+
+  @media (max-width: 833px) {
+    .day-grid { grid-template-columns: 1fr 1fr; }
+    .day-tile { min-height: 170px; }
+    .nav-zone .arrow { width: 38px; height: 38px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="top-bar"><i id="progress" style="width: 0%"></i></div>
+  <div class="corner left">한 가족이 되신 예수님 · 5일 묵상</div>
+  <div class="corner right"><span id="curIdx">1</span> / <span id="totIdx">16</span></div>
+  <div class="nav-zone left" id="navLeft"><div class="arrow">←</div></div>
+  <div class="nav-zone right" id="navRight"><div class="arrow">→</div></div>
+
+  <div class="reel" id="reel">
+
+    <!-- ======== 1. Series intro ======== -->
+    <section class="slide bg-canvas" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build"><span class="spike">✸</span><span>사도신경 강해 10 · 죽으시고, 장사된 지</span></div>
+        <h1 class="display-lg build">한 가족이 되신 예수님,<br/>다섯 날의 묵상.</h1>
+        <p class="body-lg build" style="margin-top: 12px;">
+          매일 한 편씩 — 본문 한 구절, 핵심 한 문장, 짧은 묵상글과 기도. 한 주를 함께 살아갑니다.
+        </p>
+        <div class="day-grid build">
+          <div class="day-tile"><span class="num">DAY 01</span><span class="scrip">고후 8:9</span><span class="ttl">한 가족이 되신 예수님.</span></div>
+          <div class="day-tile"><span class="num">DAY 02</span><span class="scrip">고후 8:9</span><span class="ttl">가난과 부요의 교환.</span></div>
+          <div class="day-tile"><span class="num">DAY 03</span><span class="scrip">갈 3:13-14</span><span class="ttl">저주를 짊어지신 예수님.</span></div>
+          <div class="day-tile featured"><span class="num">DAY 04</span><span class="scrip">고후 5:21</span><span class="ttl">의의 전가, 새로운 신분.</span></div>
+          <div class="day-tile"><span class="num">DAY 05</span><span class="scrip">롬 8:38-39</span><span class="ttl">죽음조차 끊지 못하는 사랑.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======== DAY 1 ======== -->
+    <section class="slide bg-canvas" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build"><span class="spike">✸</span><span>DAY 01 · 한 가족 되심</span></div>
+        <h2 class="display-xl build">한 가족이<br/>되신 예수님.</h2>
+        <p class="subhead build">예수님은 우리를 도와주신 게 아니라, 우리와 한 가족이 되셨습니다.</p>
+        <div class="scripture-card-dark build">
+          <p class="quote">"그리스도께서는 부요하나, 여러분을 위해서 가난하게 되셨습니다."</p>
+          <p class="cite">고린도후서 8:9</p>
+        </div>
+      </div>
+    </section>
+    <section class="slide bg-card" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build">DAY 01 · 묵상</div>
+        <h3 class="display-md build">가족이 된다는 건,<br/>모든 것을 함께 나눈다는 뜻입니다.</h3>
+        <p class="body-lg build" style="margin-top: 24px;">
+          부모님 카드 속 돈은 부모님이 번 것이지만, 가족이라는 이유 하나로 내가 쓸 수 있습니다.
+          내가 일하지 않은 것까지 함께 누리는 것 — 가족은 그런 관계입니다.
+        </p>
+        <p class="body-lg build" style="margin-top: 14px;">
+          예수님이 우리에게 오신 방식이 그렇습니다. 우리의 모든 것 — <span class="strong">가난도, 저주도, 죄도</span> — 자기 것으로 가져가시고, 그분의 부요와 의로움을 우리에게 선물로 주셨습니다.
+        </p>
+      </div>
+    </section>
+    <section class="slide bg-dark" data-bg="dark">
+      <div class="slide-inner">
+        <div class="label build" style="opacity: 1;"><span class="spike">✸</span><span>DAY 01 · 적용 + 기도</span></div>
+        <h3 class="display-md build">한 가지만 골라,<br/>오늘 마음에 두기.</h3>
+        <div class="questions build">
+          <div class="q"><span class="num">01</span><span class="text">오늘 내가 예수님께 "가족이라서" 가져가시도록 맡길 수 있는 한 가지는?</span></div>
+          <div class="q"><span class="num">02</span><span class="text">"가족이 되어 주셨다"는 표현을 들었을 때, 가장 먼저 떠오르는 장면은?</span></div>
+        </div>
+        <p class="prayer-text build" style="margin-top: 32px;">
+          예수님, 저를 돕는 분이 아니라 한 가족이 되어 주셔서 감사합니다.<br/>오늘 제 짐을 혼자 지지 않게 하소서.
+        </p>
+        <span class="amen build">— 아멘.</span>
+      </div>
+    </section>
+
+    <!-- ======== DAY 2 ======== -->
+    <section class="slide bg-canvas" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build"><span class="spike">✸</span><span>DAY 02 · 부요와 가난의 교환</span></div>
+        <h2 class="display-xl build">가난과<br/>부요의 교환.</h2>
+        <p class="subhead build">그분이 가난해지셨기에, 나는 부요해졌습니다.</p>
+        <div class="scripture-card-dark build">
+          <p class="quote">"그의 가난으로 여러분을 부요하게 하시려는 것입니다."</p>
+          <p class="cite">고린도후서 8:9</p>
+        </div>
+      </div>
+    </section>
+    <section class="slide bg-card" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build">DAY 02 · 묵상</div>
+        <h3 class="display-md build">도와주신 게 아니라,<br/>내 자리에 직접 내려오셨습니다.</h3>
+        <p class="body-lg build" style="margin-top: 24px;">
+          예수님은 후원자가 아니라 우리 자리에 직접 내려오신 분입니다. 그분이 가난하셨기에 우리는 부요해졌고, 그분이 낮아지셨기에 우리는 높여졌습니다.
+        </p>
+        <p class="body-lg build" style="margin-top: 14px;">
+          가난은 단지 돈이 없는 것만 아닙니다. <span class="strong">사랑받지 못함, 인정받지 못함, 안전감의 부재</span> — 이 모든 가난을 그분이 먼저 지나가셨습니다.
+        </p>
+      </div>
+    </section>
+    <section class="slide bg-coral" data-bg="coral">
+      <div class="slide-inner">
+        <div class="label build" style="opacity: 1;"><span class="spike">✸</span><span>DAY 02 · 적용 + 기도</span></div>
+        <h3 class="display-md build">내 안의 "가난"을<br/>한 단어로 적어보기.</h3>
+        <div class="questions build">
+          <div class="q"><span class="num">01</span><span class="text">내가 지금 느끼는 "가난"은? 그것이 예수님이 이미 지나가신 자리임을 떠올려 보세요.</span></div>
+          <div class="q"><span class="num">02</span><span class="text">오늘 누군가에게 "내가 가진 부요"를 작은 형태로라도 나눌 수 있는 한 가지는?</span></div>
+        </div>
+        <p class="prayer-text build" style="margin-top: 32px;">
+          예수님, 저를 위해 가난해지신 그 사랑을 묵상합니다.<br/>오늘도 누군가에게 작은 부요를 흘려보내게 하소서.
+        </p>
+        <span class="amen build">— 아멘.</span>
+      </div>
+    </section>
+
+    <!-- ======== DAY 3 ======== -->
+    <section class="slide bg-dark" data-bg="dark">
+      <div class="slide-inner">
+        <div class="label build" style="opacity: 1;"><span class="spike">✸</span><span>DAY 03 · 저주의 자리</span></div>
+        <h2 class="display-xl build">저주를<br/>짊어지신 예수님.</h2>
+        <p class="subhead build">가장 큰 저주의 자리에 그분이 가셨기에, 가장 큰 축복이 내게 흘러옵니다.</p>
+        <div class="scripture build">
+          <p class="quote" style="color: var(--on-dark);">"그리스도께서 우리를 위하여 저주를 받은 사람이 되심으로써, 우리를 율법의 저주에서 속량해 주셨습니다."</p>
+          <p class="cite" style="color: var(--on-dark-soft);">갈라디아서 3:13</p>
+        </div>
+      </div>
+    </section>
+    <section class="slide bg-canvas" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build">DAY 03 · 묵상</div>
+        <h3 class="display-md build">예수님은 두려운 자리에<br/>먼저 가신 분입니다.</h3>
+        <p class="body-lg build" style="margin-top: 24px;">
+          십자가는 단순한 처형 도구가 아니었습니다. 당시 사람들에게 그것은 "저 사람은 하나님께 버림받았다"라는 가장 큰 모욕이자 저주였습니다.
+        </p>
+        <p class="body-lg build" style="margin-top: 14px;">
+          그 자리에 예수님이 가셨습니다. 자기 잘못이 하나도 없으셨는데도 — <span class="strong">우리가 받아야 할 저주를 자기 등에 지셨습니다.</span>
+        </p>
+      </div>
+    </section>
+    <section class="slide bg-card" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build">DAY 03 · 적용 + 기도</div>
+        <h3 class="display-md build">내 안의 "버림받음"의<br/>그림자를 마주하기.</h3>
+        <div class="questions build">
+          <div class="q"><span class="num">01</span><span class="text">내가 두려워하는 "버림받음"의 형태는? 그 자리에도 예수님이 먼저 가셨다는 사실이 위로가 됩니까?</span></div>
+          <div class="q"><span class="num">02</span><span class="text">오늘 내가 누군가의 "저주" — 외로움이나 수치 — 를 조금이라도 함께 짊어질 수 있다면?</span></div>
+        </div>
+        <p class="prayer-text build" style="margin-top: 32px;">
+          예수님, 가장 깊은 어둠의 자리에 먼저 가셔서 감사합니다.<br/>그 발자국을 따라 한 걸음 내딛게 하소서.
+        </p>
+        <span class="amen build">— 아멘.</span>
+      </div>
+    </section>
+
+    <!-- ======== DAY 4 ======== -->
+    <section class="slide bg-canvas" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build"><span class="spike">✸</span><span>DAY 04 · 새 신분</span></div>
+        <h2 class="display-xl build">의의 전가,<br/>새로운 신분.</h2>
+        <p class="subhead build">내가 의로워진 게 아니라, 그분의 의로움이 내게 입혀졌습니다.</p>
+        <div class="scripture-card-dark build">
+          <p class="quote">"그것은 우리가 그리스도 안에서 하나님의 의가 되게 하시려는 것입니다."</p>
+          <p class="cite">고린도후서 5:21</p>
+        </div>
+      </div>
+    </section>
+    <section class="slide bg-card" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build">DAY 04 · 묵상</div>
+        <h3 class="display-md build">하나님은 내가 한 일이 아니라,<br/>예수님이 하신 일을 보십니다.</h3>
+        <p class="body-lg build" style="margin-top: 24px;">
+          "내가 노력해서 깨끗해지면 하나님이 받아주시겠지" — 우리는 자주 이렇게 생각합니다. 그러나 본문은 정반대로 말합니다.
+        </p>
+        <p class="body-lg build" style="margin-top: 14px;">
+          죄가 전혀 없으신 분이 우리 자리에 죄인으로 서셨고, 그래서 죄 많은 우리가 그분 안에서 의로운 사람이 되었습니다. <span class="strong">이것은 거래가 아니라 가족의 교환입니다.</span>
+        </p>
+      </div>
+    </section>
+    <section class="slide bg-dark" data-bg="dark">
+      <div class="slide-inner">
+        <div class="label build" style="opacity: 1;"><span class="spike">✸</span><span>DAY 04 · 적용 + 기도</span></div>
+        <h3 class="display-md build">"내 의로움"을<br/>내려놓는 한 순간.</h3>
+        <div class="questions build">
+          <div class="q"><span class="num">01</span><span class="text">"내 의로움"이 아니라 "그분의 의로움" 안에서 산다면, 무엇이 가장 가벼워질까요?</span></div>
+          <div class="q"><span class="num">02</span><span class="text">누군가를 그의 행동이 아니라 "예수님 안의 신분"으로 봐주는 한 번의 시선을 가져 보세요.</span></div>
+        </div>
+        <p class="prayer-text build" style="margin-top: 32px;">
+          예수님, 제가 한 일이 아니라 당신이 하신 일을 의지하게 하소서.<br/>당신 안의 새 신분으로 살게 하소서.
+        </p>
+        <span class="amen build">— 아멘.</span>
+      </div>
+    </section>
+
+    <!-- ======== DAY 5 ======== -->
+    <section class="slide bg-coral" data-bg="coral">
+      <div class="slide-inner">
+        <div class="label build" style="opacity: 1;"><span class="spike">✸</span><span>DAY 05 · 끊어지지 않는 사랑</span></div>
+        <h2 class="display-xl build">죽음조차<br/>끊지 못하는 사랑.</h2>
+        <p class="subhead build">그분이 죽음의 자리까지 가셨기에, 그곳도 더는 우리를 끊지 못합니다.</p>
+        <div class="scripture build" style="border-left-color: var(--on-primary);">
+          <p class="quote" style="color: var(--on-primary);">"그 어떤 피조물도, 우리를 우리 주 예수 그리스도 안에 있는 하나님의 사랑에서 끊을 수 없습니다."</p>
+          <p class="cite" style="color: rgba(255,255,255,0.85);">로마서 8:38-39</p>
+        </div>
+      </div>
+    </section>
+    <section class="slide bg-canvas" data-bg="light">
+      <div class="slide-inner">
+        <div class="label build">DAY 05 · 묵상</div>
+        <h3 class="display-md build">예수님이 먼저 가신 자리는,<br/>더 이상 우리를 끊지 못합니다.</h3>
+        <p class="body-lg build" style="margin-top: 24px;">
+          예수님의 죽음은 연극이 아니었습니다. <span class="strong">진짜로 심장이 멈추고, 무덤에 묻히신 사건입니다.</span> 우리와 완전히 하나가 되시기 위해서였습니다.
+        </p>
+        <p class="body-lg build" style="margin-top: 14px;">
+          외로움, 실패, 불안, 두려움 — 우리가 가는 모든 자리에 예수님은 먼저 가셨고, 거기서 우리에게 손을 내미십니다.
+        </p>
+      </div>
+    </section>
+    <section class="slide bg-dark" data-bg="dark">
+      <div class="slide-inner" style="text-align: center;">
+        <div class="label build" style="opacity: 1; justify-content: center; width: 100%;"><span class="spike">✸</span><span>마지막 기도</span></div>
+        <p class="prayer-text build" style="margin: 24px auto 0; max-width: 28em;">
+          예수님,<br/>죽음의 자리까지 가신 그 사랑이<br/>제 매일의 자리가 되게 하소서.<br/>이 한 주 묵상이 끝이 아니라,<br/>일상의 시작이 되게 하소서.
+        </p>
+        <span class="amen build">— 아멘.</span>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="hint-bar" id="hintBar">
+    <kbd>←</kbd><kbd>→</kbd> 이동 · <kbd>Space</kbd> 다음 · <kbd>F</kbd> 전체화면
+  </div>
+</div>
+
+<script>
+  const stage = document.getElementById("stage");
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const total = slides.length;
+  const progress = document.getElementById("progress");
+  const curEl = document.getElementById("curIdx");
+  const totEl = document.getElementById("totIdx");
+  const hintBar = document.getElementById("hintBar");
+  totEl.textContent = total;
+  let cur = 0;
+  function applyBg() { stage.dataset.bg = slides[cur].dataset.bg || "light"; }
+  function snapPositions(activeIdx) {
+    slides.forEach((s, i) => {
+      s.classList.remove("is-current", "is-prev", "is-next", "is-animating");
+      if (i === activeIdx) s.classList.add("is-current");
+      else if (i < activeIdx) s.classList.add("is-prev");
+      else s.classList.add("is-next");
+    });
+  }
+  function go(idx, pushHistory = true) {
+    idx = Math.max(0, Math.min(total - 1, idx));
+    if (idx === cur && slides[cur].classList.contains("is-current")) return;
+    const dir = idx >= cur ? "fwd" : "back";
+    const oldCur = cur;
+    slides.forEach((s, i) => {
+      if (i === oldCur || i === idx) return;
+      s.classList.remove("is-current", "is-prev", "is-next", "is-animating");
+      if (i < idx) s.classList.add("is-prev");
+      else s.classList.add("is-next");
+    });
+    const outgoing = slides[oldCur], incoming = slides[idx];
+    outgoing.classList.add("is-animating"); incoming.classList.add("is-animating");
+    requestAnimationFrame(() => {
+      outgoing.classList.remove("is-current");
+      outgoing.classList.add(dir === "fwd" ? "is-prev" : "is-next");
+      incoming.classList.remove("is-prev", "is-next");
+      incoming.classList.add("is-current");
+    });
+    cur = idx;
+    progress.style.width = `${((cur + 1) / total) * 100}%`;
+    curEl.textContent = cur + 1;
+    applyBg();
+    if (pushHistory) history.replaceState(null, "", `#${cur + 1}`);
+  }
+  const initialHash = parseInt(location.hash.replace("#", ""), 10);
+  const startIdx = Number.isFinite(initialHash) && initialHash >= 1 ? Math.min(initialHash - 1, total - 1) : 0;
+  cur = startIdx;
+  snapPositions(startIdx);
+  progress.style.width = `${((cur + 1) / total) * 100}%`;
+  curEl.textContent = cur + 1;
+  applyBg();
+  function next() { go(cur + 1); } function prev() { go(cur - 1); }
+  document.addEventListener("keydown", (e) => {
+    switch (e.key) {
+      case "ArrowRight": case " ": case "PageDown": e.preventDefault(); next(); break;
+      case "ArrowLeft": case "PageUp": e.preventDefault(); prev(); break;
+      case "Home": e.preventDefault(); go(0); break;
+      case "End": e.preventDefault(); go(total - 1); break;
+      case "f": case "F":
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+        break;
+    }
+  });
+  document.getElementById("navLeft").addEventListener("click", prev);
+  document.getElementById("navRight").addEventListener("click", next);
+  let tx = null;
+  stage.addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener("touchend", (e) => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 60) (dx < 0 ? next : prev)();
+    tx = null;
+  });
+  let hintTimer;
+  function bumpHint() { hintBar.classList.remove("fade"); clearTimeout(hintTimer); hintTimer = setTimeout(() => hintBar.classList.add("fade"), 4000); }
+  ["mousemove", "keydown", "touchstart"].forEach(ev => window.addEventListener(ev, bumpHint, { passive: true }));
+  bumpHint();
+</script>
+</body>
+</html>
