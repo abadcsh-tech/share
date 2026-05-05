@@ -183,7 +183,10 @@
     display: flex; flex-direction: column; gap: 8px; min-height: 200px;
     transition: border-color 0.2s ease, transform 0.2s ease;
   }
+  .day-tile { cursor: pointer; }
   .day-tile:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .day-tile:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+  .day-tile:active { transform: translateY(0); }
   .day-tile .num { font-family: var(--font-sans); font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
   .day-tile .scrip { font-family: var(--font-sans); font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
   .day-tile .ttl { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.2; letter-spacing: -0.018em; margin-top: auto; }
@@ -228,13 +231,19 @@
     .stage { background: var(--canvas); }
     .deck {
       aspect-ratio: auto;
-      width: 100vw; height: 100vh;
-      max-height: 100vh;
+      width: 100vw;
+      /* dvh = dynamic viewport height (excludes Safari URL bar when shown) */
+      height: 100dvh;
+      max-height: 100dvh;
+    }
+    /* Fallback for old browsers without dvh */
+    @supports not (height: 100dvh) {
+      .deck { height: 100vh; max-height: 100vh; }
     }
     .slide {
-      padding: 28px 20px 56px;
+      /* Bottom padding accounts for Safari URL bar + iPhone home indicator */
+      padding: 56px 20px calc(72px + env(safe-area-inset-bottom));
       align-items: flex-start;
-      padding-top: 56px;
     }
     .two-col { grid-template-columns: 1fr; gap: 22px; align-items: start; }
     .day-illustration { max-width: 180px; margin: 8px auto 0; order: 2; }
@@ -250,8 +259,12 @@
     .day-tile .ttl { margin-top: 0; font-size: 18px; flex: 1; }
     .day-tile .num, .day-tile .scrip { font-size: 11px; white-space: nowrap; }
 
-    /* Tighter chrome on mobile */
-    .corner { font-size: 11px; bottom: 12px; letter-spacing: 0.06em; }
+    /* Tighter chrome on mobile + lift above Safari URL bar / home indicator */
+    .corner {
+      font-size: 11px;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      letter-spacing: 0.06em;
+    }
     .corner.left { left: 16px; max-width: 60%; }
     .corner.right { right: 16px; }
 
@@ -337,11 +350,11 @@
             매일 한 편씩 — 본문 한 구절, 핵심 한 문장, 짧은 묵상글과 기도. 한 주를 함께 살아갑니다.
           </p>
           <div class="day-grid build">
-            <div class="day-tile"><span class="num">DAY 01</span><span class="scrip">고후 8:9</span><span class="ttl">한 가족이 되신 예수님.</span></div>
-            <div class="day-tile"><span class="num">DAY 02</span><span class="scrip">고후 8:9</span><span class="ttl">가난과 부요의 교환.</span></div>
-            <div class="day-tile"><span class="num">DAY 03</span><span class="scrip">갈 3:13-14</span><span class="ttl">저주를 짊어지신 예수님.</span></div>
-            <div class="day-tile"><span class="num">DAY 04</span><span class="scrip">고후 5:21</span><span class="ttl">의의 전가, 새로운 신분.</span></div>
-            <div class="day-tile"><span class="num">DAY 05</span><span class="scrip">롬 8:38-39</span><span class="ttl">죽음조차 끊지 못하는 사랑.</span></div>
+            <div class="day-tile" data-goto="1" role="button" tabindex="0"><span class="num">DAY 01</span><span class="scrip">고후 8:9</span><span class="ttl">한 가족이 되신 예수님.</span></div>
+            <div class="day-tile" data-goto="4" role="button" tabindex="0"><span class="num">DAY 02</span><span class="scrip">고후 8:9</span><span class="ttl">가난과 부요의 교환.</span></div>
+            <div class="day-tile" data-goto="7" role="button" tabindex="0"><span class="num">DAY 03</span><span class="scrip">갈 3:13-14</span><span class="ttl">저주를 짊어지신 예수님.</span></div>
+            <div class="day-tile" data-goto="10" role="button" tabindex="0"><span class="num">DAY 04</span><span class="scrip">고후 5:21</span><span class="ttl">의의 전가, 새로운 신분.</span></div>
+            <div class="day-tile" data-goto="13" role="button" tabindex="0"><span class="num">DAY 05</span><span class="scrip">롬 8:38-39</span><span class="ttl">죽음조차 끊지 못하는 사랑.</span></div>
           </div>
         </div>
       </section>
@@ -658,6 +671,18 @@
   });
   document.getElementById("navLeft").addEventListener("click", prev);
   document.getElementById("navRight").addEventListener("click", next);
+
+  // Day-tile click → jump to that day's hero slide
+  document.querySelectorAll(".day-tile[data-goto]").forEach(tile => {
+    const handler = (e) => {
+      e.preventDefault();
+      go(parseInt(tile.dataset.goto, 10));
+    };
+    tile.addEventListener("click", handler);
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") handler(e);
+    });
+  });
   let tx = null;
   deck.addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; }, { passive: true });
   deck.addEventListener("touchend", (e) => {
