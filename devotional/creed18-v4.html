@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>5일 묵상 시안4 — 넘어져도, 돌아갈 곳 (사도신경 강해 18)</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/suit@3.0.1/dist/suit.css">
+<style>
+  :root {
+    /* Raycast surface ladder */
+    --canvas: #07080a;
+    --surface: #0d0d0d;
+    --surface-elevated: #101111;
+    --surface-card: #121212;
+    --hairline: #242728;
+    --hairline-strong: rgba(255,255,255,0.16);
+    --hairline-soft: rgba(255,255,255,0.08);
+
+    /* Text */
+    --ink: #f4f4f6;
+    --body: #cdcdcd;
+    --charcoal: #d3d3d4;
+    --mute: #9c9c9d;
+    --ash: #6a6b6c;
+    --stone: #434345;
+    --on-dark-mute: rgba(255,255,255,0.72);
+
+    /* Primary white CTA */
+    --primary: #ffffff;
+    --primary-pressed: #e8e8e8;
+    --on-primary: #000000;
+
+    /* Accent (used sparingly) */
+    --accent-yellow: #ffc533;
+    --accent-red: #ff6161;
+    --hero-stripe-start: #ff5757;
+    --hero-stripe-mid: #d12b30;
+    --hero-stripe-end: #a1131a;
+
+    /* Keycap micro gradient */
+    --key-bg-start: #1a1a1c;
+    --key-bg-end: #0d0d0d;
+
+    --font-display: "Nanum Myeongjo", "NanumMyeongjo", "Noto Serif KR", Georgia, serif;
+    --font-sans: "SUIT", "SUIT Variable", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; overflow: hidden;
+    font-family: var(--font-sans); background: #050507;
+    -webkit-font-smoothing: antialiased; color: var(--body);
+  }
+
+  /* Korean line-break safety */
+  .num-mega, .display-2xl, .display-xl, .display-md, .key-line, .scripture .quote,
+  .scripture .cite, .question, .prayer, .corner, .day-row .ttl, .day-row .num,
+  .badge, .three-words .word, .three-words .dot, .closing-line, .hero-eyebrow,
+  .verse-keycap, .scripture-tag {
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+
+  .stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .deck {
+    position: relative; aspect-ratio: 16 / 9;
+    width: 100vw; height: auto; max-height: 100vh;
+    background: var(--canvas); overflow: hidden;
+  }
+  @supports not (aspect-ratio: 16 / 9) { .deck { width: 100vw; height: 56.25vw; } }
+
+  .reel { position: relative; width: 100%; height: 100%; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; align-items: center;
+    padding: clamp(40px, 5vh, 72px) clamp(48px, 6.5vw, 110px);
+    opacity: 0; pointer-events: none;
+    transform: translateX(100%);
+    overflow: auto;
+    color: var(--ink);
+  }
+  .slide.is-animating { transition: transform 0.55s cubic-bezier(.65,0,.2,1), opacity 0.45s ease; }
+  .slide.is-current { opacity: 1; pointer-events: auto; transform: translateX(0); z-index: 2; }
+  .slide.is-prev { transform: translateX(-100%); opacity: 1; }
+  .slide.is-next { transform: translateX(100%); opacity: 1; }
+
+  .slide-inner { width: 100%; max-width: 1240px; margin: 0 auto; }
+
+  /* HERO STRIPE GRADIENT — signature decoration, used ONCE on cover */
+  .hero-stripes {
+    position: absolute; top: 0; left: 0; right: 0; height: 50%;
+    overflow: hidden; pointer-events: none; z-index: 1;
+  }
+  .hero-stripes .stripe {
+    position: absolute; top: -10%;
+    height: 140%; transform: rotate(-22deg);
+    transform-origin: top left;
+    filter: blur(2px);
+    opacity: 0.72;
+  }
+  .hero-stripes .stripe-1 {
+    left: 22%; width: 95px;
+    background: linear-gradient(180deg, var(--hero-stripe-start) 0%, transparent 100%);
+  }
+  .hero-stripes .stripe-2 {
+    left: 38%; width: 75px;
+    background: linear-gradient(180deg, var(--hero-stripe-mid) 0%, transparent 100%);
+    opacity: 0.65;
+  }
+  .hero-stripes .stripe-3 {
+    left: 60%; width: 60px;
+    background: linear-gradient(180deg, var(--hero-stripe-end) 0%, transparent 100%);
+    opacity: 0.55;
+  }
+  .hero-stripes .stripe-4 {
+    left: 78%; width: 40px;
+    background: linear-gradient(180deg, var(--hero-stripe-start) 0%, transparent 100%);
+    opacity: 0.4;
+  }
+  .hero-stripes::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 0%, var(--canvas) 92%);
+  }
+
+  /* Bottom hairline echo on hero/footer (Raycast footer stripe echo) */
+  .stripe-echo {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 36px;
+    overflow: hidden; pointer-events: none; opacity: 0.5;
+  }
+  .stripe-echo::before {
+    content: '';
+    position: absolute; bottom: 0; left: 30%; width: 60px; height: 100%;
+    transform: rotate(-22deg) translateY(40%);
+    background: linear-gradient(0deg, var(--hero-stripe-end) 0%, transparent 100%);
+    filter: blur(2px); opacity: 0.55;
+  }
+
+  /* Cover layout */
+  .cover {
+    position: relative; z-index: 2;
+    display: grid; grid-template-rows: auto 1fr auto; gap: 28px;
+    width: 100%; height: 100%;
+  }
+  .cover-top { display: flex; align-items: center; justify-content: space-between; }
+  .cover-mid { display: flex; flex-direction: column; justify-content: center; max-width: 920px; }
+  .cover-bot { display: grid; grid-template-columns: 1fr; gap: 8px; }
+
+  /* Hero typography */
+  .hero-eyebrow {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: clamp(13px, 1.1vw, 15px); letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--mute);
+  }
+  .hero-eyebrow .dot { color: var(--hero-stripe-start); }
+
+  .display-2xl {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(58px, 7.2vw, 110px);
+    line-height: 1.02; letter-spacing: -0.028em;
+    color: var(--ink);
+  }
+  .display-xl {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(44px, 5.4vw, 72px);
+    line-height: 1.08; letter-spacing: -0.022em;
+    color: var(--ink);
+  }
+  .display-md {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(28px, 3vw, 42px);
+    line-height: 1.22; letter-spacing: -0.016em;
+    color: var(--ink);
+  }
+
+  /* Universal badge — Raycast small chip */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-sans); font-weight: 600;
+    font-size: clamp(11px, 1vw, 13px); letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--mute);
+    padding: 5px 10px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    background: var(--surface-elevated);
+  }
+  .badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--hero-stripe-start);
+    display: inline-block;
+  }
+  .badge.solid {
+    background: var(--primary); color: var(--on-primary);
+    border-color: transparent;
+  }
+
+  /* White CTA pill (used scarcely — at most one per slide) */
+  .cta-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-sans); font-weight: 600;
+    font-size: 14px; letter-spacing: 0.01em;
+    color: var(--on-primary); background: var(--primary);
+    padding: 9px 18px; border-radius: 8px;
+    text-decoration: none; cursor: pointer; border: none;
+    transition: background 0.15s ease;
+  }
+  .cta-pill:hover, .cta-pill:focus-visible { background: var(--primary-pressed); outline: none; }
+
+  /* Day row card — store-extension-card vibe */
+  .day-list {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .day-row {
+    display: grid; grid-template-columns: 56px 1fr auto;
+    align-items: center; gap: 18px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-row:hover { background: var(--surface-elevated); }
+  .day-row:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+  .day-row .num {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 28px; line-height: 1; color: var(--ink);
+    width: 56px; height: 56px;
+    background: var(--surface-card);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: -0.02em;
+  }
+  .day-row .ttl {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(18px, 1.7vw, 22px);
+    line-height: 1.25; color: var(--ink);
+    letter-spacing: -0.012em;
+  }
+  .day-row .meta-line {
+    margin-top: 4px;
+    font-family: var(--font-sans); font-weight: 500;
+    font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--mute);
+  }
+  .day-row .arrow {
+    font-family: var(--font-sans); font-weight: 500;
+    font-size: 14px; color: var(--ash);
+    transition: color 0.15s ease;
+  }
+  .day-row:hover .arrow { color: var(--ink); }
+
+  /* Day poster layout */
+  .poster {
+    display: grid;
+    grid-template-columns: minmax(170px, 0.42fr) 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "num   meta"
+      "num   key"
+      "scrip foot";
+    gap: clamp(28px, 3.4vw, 56px);
+    width: 100%; height: 100%;
+    align-items: start;
+  }
+  .poster .num-mega {
+    grid-area: num;
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(140px, 17vw, 260px);
+    line-height: 0.85; letter-spacing: -0.045em;
+    color: var(--ink);
+    margin-top: -4px;
+  }
+  .poster .num-mega .slash {
+    color: var(--mute); font-weight: 400;
+    margin-right: 6px; opacity: 0.4;
+  }
+  .poster .meta {
+    grid-area: meta;
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 18px;
+  }
+  .poster .key-block {
+    grid-area: key;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .poster .scrip-block { grid-area: scrip; align-self: end; }
+  .poster .foot { grid-area: foot; align-self: end; }
+
+  .key-line {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(36px, 4.4vw, 64px);
+    line-height: 1.18; letter-spacing: -0.022em;
+    color: var(--ink);
+  }
+  .key-line .accent { color: var(--hero-stripe-start); }
+
+  /* Scripture as keycap-style card (Raycast keycap vocabulary) */
+  .verse-card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: grid; grid-template-columns: auto 1fr; gap: 18px;
+    align-items: start;
+  }
+  .verse-keycap {
+    font-family: var(--font-sans); font-weight: 700;
+    font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--body);
+    padding: 4px 10px;
+    background: linear-gradient(180deg, var(--key-bg-start) 0%, var(--key-bg-end) 100%);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    white-space: nowrap;
+    align-self: center;
+  }
+  .scripture .quote {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(15px, 1.5vw, 19px);
+    line-height: 1.55; color: var(--charcoal);
+  }
+  .scripture .cite {
+    margin-top: 8px;
+    font-family: var(--font-sans); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--mute);
+  }
+
+  /* Question + prayer block */
+  .qa-block {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+    margin-top: 14px;
+  }
+  .qa-cell {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .qa-cell .label {
+    font-family: var(--font-sans); font-weight: 600;
+    font-size: 10px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--ash);
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .qa-cell .label::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--hero-stripe-start); opacity: 0.6;
+  }
+  .qa-cell.prayer-cell .label::before { background: var(--accent-yellow); opacity: 0.7; }
+  .question {
+    font-family: var(--font-sans); font-weight: 500;
+    font-size: clamp(14px, 1.35vw, 17px);
+    line-height: 1.55; color: var(--body);
+  }
+  .prayer {
+    font-family: var(--font-display); font-weight: 700; font-style: italic;
+    font-size: clamp(14px, 1.35vw, 17px);
+    line-height: 1.55; color: var(--charcoal);
+  }
+
+  /* Three words slide */
+  .three-words {
+    display: flex; align-items: center; justify-content: center;
+    gap: clamp(20px, 4vw, 64px);
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(54px, 7.6vw, 112px);
+    line-height: 1.0; letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .three-words .word { display: inline-block; }
+  .three-words .dot { color: var(--hero-stripe-start); font-size: 0.4em; transform: translateY(-0.42em); }
+  .closing-line {
+    margin-top: 22px;
+    text-align: center;
+    font-family: var(--font-sans); font-weight: 500;
+    font-size: clamp(14px, 1.4vw, 18px);
+    color: var(--mute); letter-spacing: 0.04em;
+  }
+
+  /* Closing prayer slide */
+  .closing-prayer {
+    font-family: var(--font-display); font-weight: 700; font-style: italic;
+    font-size: clamp(24px, 2.6vw, 36px); line-height: 1.5;
+    color: var(--ink);
+  }
+  .closing-prayer .accent { color: var(--hero-stripe-start); font-style: normal; }
+
+  /* Corner */
+  .corner {
+    position: absolute; bottom: 22px; z-index: 5;
+    font-family: var(--font-sans); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ash); pointer-events: none;
+  }
+  .corner.left { left: clamp(36px, 5vw, 80px); }
+  .corner.right { right: clamp(36px, 5vw, 80px); font-variant-numeric: tabular-nums; }
+
+  /* Top hairline rule (chrome) */
+  .top-rule {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px; background: var(--hairline);
+    z-index: 3;
+  }
+
+  /* Nav zones */
+  .nav-zone { position: absolute; top: 0; bottom: 0; width: 18%; z-index: 30; cursor: pointer; }
+  .nav-zone.left { left: 0; }
+  .nav-zone.right { right: 0; }
+  .nav-zone .arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 40px; height: 40px; border-radius: 8px;
+    background: var(--surface-elevated);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; opacity: 0; transition: opacity 0.25s, background 0.15s;
+  }
+  .nav-zone.left .arrow { left: 16px; }
+  .nav-zone.right .arrow { right: 16px; }
+  .nav-zone:hover .arrow { opacity: 1; background: var(--surface-card); }
+
+  .build { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.2,.7,.3,1); }
+  .slide.is-current .build { opacity: 1; transform: translateY(0); }
+  .slide.is-current .build:nth-of-type(1) { transition-delay: 0.05s; }
+  .slide.is-current .build:nth-of-type(2) { transition-delay: 0.16s; }
+  .slide.is-current .build:nth-of-type(3) { transition-delay: 0.28s; }
+  .slide.is-current .build:nth-of-type(4) { transition-delay: 0.4s; }
+  .slide.is-current .build:nth-of-type(5) { transition-delay: 0.52s; }
+  .slide.is-current .build:nth-of-type(6) { transition-delay: 0.64s; }
+
+  @media (max-width: 833px) {
+    .stage { background: var(--canvas); }
+    .deck { aspect-ratio: auto; width: 100vw; height: 100dvh; max-height: 100dvh; }
+    @supports not (height: 100dvh) { .deck { height: 100vh; max-height: 100vh; } }
+    .slide {
+      padding: 56px 20px calc(72px + env(safe-area-inset-bottom));
+      align-items: flex-start;
+    }
+
+    .poster {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto auto auto;
+      grid-template-areas: "num" "meta" "key" "scrip" "foot";
+      gap: 22px;
+    }
+    .poster .num-mega { font-size: clamp(110px, 32vw, 160px); margin-top: 0; line-height: 0.88; }
+    .key-line { font-size: clamp(26px, 6.6vw, 38px); }
+
+    .qa-block { grid-template-columns: 1fr; gap: 12px; }
+
+    .display-2xl { font-size: clamp(44px, 11vw, 60px); }
+    .display-xl { font-size: clamp(32px, 8.6vw, 44px); }
+    .display-md { font-size: clamp(22px, 6vw, 28px); }
+    .scripture .quote { font-size: clamp(14px, 3.8vw, 17px); }
+    .scripture .cite { font-size: 10px; }
+    .question, .prayer { font-size: clamp(14px, 3.8vw, 17px); }
+
+    .three-words { flex-direction: column; gap: 12px; font-size: clamp(40px, 12vw, 60px); }
+    .three-words .dot { display: none; }
+    .closing-prayer { font-size: clamp(20px, 5vw, 24px); }
+
+    .day-row { grid-template-columns: 44px 1fr auto; padding: 12px 14px; gap: 14px; }
+    .day-row .num { width: 44px; height: 44px; font-size: 22px; }
+    .day-row .ttl { font-size: 16px; }
+    .day-row .meta-line { font-size: 10px; }
+
+    .corner { font-size: 10px; bottom: calc(20px + env(safe-area-inset-bottom)); letter-spacing: 0.12em; }
+    .corner.left { left: 16px; max-width: 60%; }
+    .corner.right { right: 16px; }
+
+    .nav-zone { width: 14%; }
+    .nav-zone .arrow { width: 34px; height: 34px; font-size: 14px; }
+
+    .hero-stripes .stripe { filter: blur(1.5px); }
+    .verse-card { grid-template-columns: 1fr; gap: 10px; padding: 14px 16px; }
+    .verse-keycap { justify-self: start; }
+  }
+  @media (max-width: 833px) and (orientation: landscape) {
+    .slide { padding: 24px 32px 40px; }
+    .poster { grid-template-columns: minmax(140px, 0.45fr) 1fr; grid-template-areas: "num meta" "num key" "scrip foot"; }
+    .poster .num-mega { font-size: clamp(100px, 22vw, 150px); }
+    .three-words { flex-direction: row; gap: 24px; font-size: clamp(44px, 10vw, 72px); }
+    .three-words .dot { display: inline; }
+    .qa-block { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="deck" id="deck">
+    <div class="top-rule"></div>
+    <div class="corner left">넘어져도, 돌아갈 곳 · 5일 묵상</div>
+    <div class="corner right"><span id="curIdx">1</span> / <span id="totIdx">8</span></div>
+    <div class="nav-zone left" id="navLeft"><div class="arrow">←</div></div>
+    <div class="nav-zone right" id="navRight"><div class="arrow">→</div></div>
+
+    <div class="reel" id="reel">
+
+      <!-- 1. COVER — hero stripe gradient + day list -->
+      <section class="slide" data-bg="dark" style="background: var(--canvas);">
+        <div class="hero-stripes">
+          <div class="stripe stripe-1"></div>
+          <div class="stripe stripe-2"></div>
+          <div class="stripe stripe-3"></div>
+          <div class="stripe stripe-4"></div>
+        </div>
+        <div class="slide-inner cover">
+          <div class="cover-top build">
+            <span class="hero-eyebrow"><span class="dot">●</span> &nbsp;사도신경 강해 18 &nbsp;·&nbsp; 죄를 용서받는 것과</span>
+            <span class="badge">5일 묵상 · YOUTH</span>
+          </div>
+          <div class="cover-mid">
+            <h1 class="display-2xl build">넘어져도,<br/>돌아갈 곳이<br/>있습니다.</h1>
+            <p class="build" style="margin-top: 24px; font-family: var(--font-sans); font-weight: 400; font-size: clamp(16px, 1.6vw, 19px); color: var(--body); max-width: 680px; line-height: 1.6;">
+              "죄를 용서받는 것을 믿습니다." — 박해 후 돌아온 사람들의 자리에서 태어난 한 줄. 우리도 그 자리에서 한 주를 함께 살아갑니다.
+            </p>
+          </div>
+          <div class="cover-bot build">
+            <div class="day-list">
+              <div class="day-row" data-goto="1" role="button" tabindex="0">
+                <span class="num">01</span>
+                <div>
+                  <div class="ttl">돌아온 사람들.</div>
+                  <div class="meta-line">월 · 약 4:6 · 박해 후의 결정</div>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <div class="day-row" data-goto="2" role="button" tabindex="0">
+                <span class="num">02</span>
+                <div>
+                  <div class="ttl">단번에 끝난 용서.</div>
+                  <div class="meta-line">화 · 요일 1:9 · 자백</div>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <div class="day-row" data-goto="3" role="button" tabindex="0">
+                <span class="num">03</span>
+                <div>
+                  <div class="ttl">나도 넘어질 수 있다.</div>
+                  <div class="meta-line">수 · 고전 10:12 · 겸손</div>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <div class="day-row" data-goto="4" role="button" tabindex="0">
+                <span class="num">04</span>
+                <div>
+                  <div class="ttl">그분의 신실함.</div>
+                  <div class="meta-line">목 · 딤후 2:13 · 담대함</div>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <div class="day-row" data-goto="5" role="button" tabindex="0">
+                <span class="num">05</span>
+                <div>
+                  <div class="ttl">같은 은혜 위에.</div>
+                  <div class="meta-line">금 · 롬 3:23-24 · 따뜻함</div>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. DAY 01 -->
+      <section class="slide" data-bg="dark">
+        <div class="slide-inner poster">
+          <div class="num-mega build"><span class="slash">/</span>01</div>
+          <div class="meta build">
+            <span class="badge solid">DAY 01</span>
+            <span class="badge">돌아온 사람들</span>
+            <span class="badge"><span class="dot"></span>월요일</span>
+          </div>
+          <div class="key-block">
+            <p class="key-line build">
+              교회는, 넘어진 사람도<br/>
+              <span class="accent">다시 안아주는 곳</span>입니다.
+            </p>
+          </div>
+          <div class="scrip-block build">
+            <div class="verse-card">
+              <span class="verse-keycap">약 4:6</span>
+              <div class="scripture">
+                <p class="quote">"하나님께서는 교만한 자들을 물리치시고, 겸손한 사람들에게 은혜를 주신다."</p>
+                <p class="cite">야고보서 4장 6절</p>
+              </div>
+            </div>
+          </div>
+          <div class="foot build">
+            <div class="qa-block">
+              <div class="qa-cell">
+                <div class="label">오늘의 질문</div>
+                <p class="question">내가 마음에서 밀어내고 있는 사람은 누구입니까? 그도 같은 은혜 안에 있다면, 어떻게 다르게 보일까요?</p>
+              </div>
+              <div class="qa-cell prayer-cell">
+                <div class="label">짧은 기도</div>
+                <p class="prayer">누군가의 약함을 정죄로 보지 않게 하소서. 저도 그 자리에 있을 수 있는 사람임을 잊지 않게 하소서.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. DAY 02 -->
+      <section class="slide" data-bg="dark">
+        <div class="slide-inner poster">
+          <div class="num-mega build"><span class="slash">/</span>02</div>
+          <div class="meta build">
+            <span class="badge solid">DAY 02</span>
+            <span class="badge">단번에 끝난 용서</span>
+            <span class="badge"><span class="dot"></span>화요일</span>
+          </div>
+          <div class="key-block">
+            <p class="key-line build">
+              용서받기 위해<br/>
+              <span class="accent">다시 무엇을 할 필요가 없습니다.</span>
+            </p>
+          </div>
+          <div class="scrip-block build">
+            <div class="verse-card">
+              <span class="verse-keycap">요일 1:9</span>
+              <div class="scripture">
+                <p class="quote">"우리가 우리 죄를 자백하면, 하나님은 신실하시고 의로우신 분이셔서, 우리 죄를 용서하시고 모든 불의에서 우리를 깨끗하게 해주실 것입니다."</p>
+                <p class="cite">요한일서 1장 9절</p>
+              </div>
+            </div>
+          </div>
+          <div class="foot build">
+            <div class="qa-block">
+              <div class="qa-cell">
+                <div class="label">오늘의 질문</div>
+                <p class="question">오늘 마음에서 자꾸 떠오르는, 자백하고 싶은 한 가지를 정직하게 꺼내 놓으시겠습니까?</p>
+              </div>
+              <div class="qa-cell prayer-cell">
+                <div class="label">짧은 기도</div>
+                <p class="prayer">십자가에서 이미 다 이루셨음을 믿습니다. 오늘 정직하게 꺼내 놓고, 깨끗하게 받게 하소서.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. DAY 03 -->
+      <section class="slide" data-bg="dark">
+        <div class="slide-inner poster">
+          <div class="num-mega build"><span class="slash">/</span>03</div>
+          <div class="meta build">
+            <span class="badge solid">DAY 03</span>
+            <span class="badge">겸손</span>
+            <span class="badge"><span class="dot"></span>수요일</span>
+          </div>
+          <div class="key-block">
+            <p class="key-line build">
+              내 강함이 아니라,<br/>
+              <span class="accent">은혜 위에 서 있는 것</span>입니다.
+            </p>
+          </div>
+          <div class="scrip-block build">
+            <div class="verse-card">
+              <span class="verse-keycap">고전 10:12</span>
+              <div class="scripture">
+                <p class="quote">"그러므로 서 있다고 생각하는 사람은 넘어지지 않도록 조심하십시오."</p>
+                <p class="cite">고린도전서 10장 12절</p>
+              </div>
+            </div>
+          </div>
+          <div class="foot build">
+            <div class="qa-block">
+              <div class="qa-cell">
+                <div class="label">오늘의 질문</div>
+                <p class="question">내가 "나는 절대 그러지 않을 거야"라고 말하는 영역은 어디입니까? 그 자리도 은혜임을 인정하면 무엇이 달라집니까?</p>
+              </div>
+              <div class="qa-cell prayer-cell">
+                <div class="label">짧은 기도</div>
+                <p class="prayer">제가 서 있는 자리도 은혜임을 알게 하소서. 넘어질 수 있는 자임을 잊지 않게 하소서.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. DAY 04 -->
+      <section class="slide" data-bg="dark">
+        <div class="slide-inner poster">
+          <div class="num-mega build"><span class="slash">/</span>04</div>
+          <div class="meta build">
+            <span class="badge solid">DAY 04</span>
+            <span class="badge">그분의 신실함</span>
+            <span class="badge"><span class="dot"></span>목요일</span>
+          </div>
+          <div class="key-block">
+            <p class="key-line build">
+              내가 떠나 있을 때에도<br/>
+              <span class="accent">주님은 기다리고 계셨습니다.</span>
+            </p>
+          </div>
+          <div class="scrip-block build">
+            <div class="verse-card">
+              <span class="verse-keycap">딤후 2:13</span>
+              <div class="scripture">
+                <p class="quote">"우리는 신실하지 못하더라도, 그분은 언제나 신실하십니다. 그분은 자기를 부인할 수 없으시기 때문입니다."</p>
+                <p class="cite">디모데후서 2장 13절</p>
+              </div>
+            </div>
+          </div>
+          <div class="foot build">
+            <div class="qa-block">
+              <div class="qa-cell">
+                <div class="label">오늘의 질문</div>
+                <p class="question">한때 믿음에서 멀어졌던 시간이 있다면, 거기서도 주님이 어떻게 기다리고 계셨나요?</p>
+              </div>
+              <div class="qa-cell prayer-cell">
+                <div class="label">짧은 기도</div>
+                <p class="prayer">제 신실하지 못함 위에 당신의 신실하심이 있습니다. 흔들려도 돌아갈 곳이 당신임을 잊지 않게 하소서.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. DAY 05 -->
+      <section class="slide" data-bg="dark">
+        <div class="slide-inner poster">
+          <div class="num-mega build"><span class="slash">/</span>05</div>
+          <div class="meta build">
+            <span class="badge solid">DAY 05</span>
+            <span class="badge">같은 은혜 위에</span>
+            <span class="badge"><span class="dot"></span>금요일</span>
+          </div>
+          <div class="key-block">
+            <p class="key-line build">
+              강한 사람도 약한 사람도,<br/>
+              <span class="accent">모두 같은 은혜 위에</span> 서 있습니다.
+            </p>
+          </div>
+          <div class="scrip-block build">
+            <div class="verse-card">
+              <span class="verse-keycap">롬 3:23-24</span>
+              <div class="scripture">
+                <p class="quote">"모든 사람이 죄를 범하였습니다. … 그리스도 예수 안에서 얻는 구원으로 말미암아, 하나님의 은혜로 값없이 의롭다는 선고를 받습니다."</p>
+                <p class="cite">로마서 3장 23-24절</p>
+              </div>
+            </div>
+          </div>
+          <div class="foot build">
+            <div class="qa-block">
+              <div class="qa-cell">
+                <div class="label">오늘의 질문</div>
+                <p class="question">이번 한 주, 내가 따뜻하게 품을 한 사람은 누구입니까?</p>
+              </div>
+              <div class="qa-cell prayer-cell">
+                <div class="label">짧은 기도</div>
+                <p class="prayer">같은 은혜 위에 선 가족임을 잊지 않게 하소서. 겸손하게, 담대하게, 따뜻하게 살아가게 하소서.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. THREE WORDS -->
+      <section class="slide" data-bg="dark">
+        <div class="slide-inner" style="text-align: center;">
+          <p class="badge build" style="margin-bottom: 36px;"><span class="dot"></span>한 주의 결론</p>
+          <p class="three-words build">
+            <span class="word">겸손</span>
+            <span class="dot">●</span>
+            <span class="word">담대</span>
+            <span class="dot">●</span>
+            <span class="word">따뜻</span>
+          </p>
+          <p class="closing-line build">
+            "죄를 용서받는 것"이 우리에게 요구하는 세 자세.
+          </p>
+        </div>
+      </section>
+
+      <!-- 8. CLOSING PRAYER -->
+      <section class="slide" data-bg="dark" style="position: relative;">
+        <div class="stripe-echo"></div>
+        <div class="slide-inner" style="text-align: center; max-width: 880px; position: relative; z-index: 2;">
+          <p class="badge build" style="margin-bottom: 28px;"><span class="dot"></span>마지막 기도</p>
+          <p class="closing-prayer build">
+            예수님,<br/>
+            같은 은혜 위에 선 가족임을 잊지 않게 하소서.<br/>
+            <span class="accent">겸손하게, 담대하게, 따뜻하게</span> 살아가게 하소서.
+          </p>
+          <p class="build" style="margin-top: 36px; font-family: var(--font-sans); font-weight: 700; font-size: 12px; letter-spacing: 0.32em; color: var(--ash); text-transform: uppercase;">
+            아 멘
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const deck = document.getElementById("deck");
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const total = slides.length;
+  const curEl = document.getElementById("curIdx");
+  const totEl = document.getElementById("totIdx");
+  totEl.textContent = total;
+  let cur = 0;
+  function snapPositions(activeIdx) {
+    slides.forEach((s, i) => {
+      s.classList.remove("is-current", "is-prev", "is-next", "is-animating");
+      if (i === activeIdx) s.classList.add("is-current");
+      else if (i < activeIdx) s.classList.add("is-prev");
+      else s.classList.add("is-next");
+    });
+  }
+  function go(idx, push = true) {
+    idx = Math.max(0, Math.min(total - 1, idx));
+    if (idx === cur && slides[cur].classList.contains("is-current")) return;
+    const dir = idx >= cur ? "fwd" : "back";
+    const oldCur = cur;
+    slides.forEach((s, i) => {
+      if (i === oldCur || i === idx) return;
+      s.classList.remove("is-current", "is-prev", "is-next", "is-animating");
+      if (i < idx) s.classList.add("is-prev");
+      else s.classList.add("is-next");
+    });
+    const out = slides[oldCur], inc = slides[idx];
+    out.classList.add("is-animating"); inc.classList.add("is-animating");
+    requestAnimationFrame(() => {
+      out.classList.remove("is-current");
+      out.classList.add(dir === "fwd" ? "is-prev" : "is-next");
+      inc.classList.remove("is-prev", "is-next");
+      inc.classList.add("is-current");
+    });
+    cur = idx;
+    curEl.textContent = cur + 1;
+    if (push) history.replaceState(null, "", `#${cur + 1}`);
+  }
+  const initialHash = parseInt(location.hash.replace("#", ""), 10);
+  const startIdx = Number.isFinite(initialHash) && initialHash >= 1 ? Math.min(initialHash - 1, total - 1) : 0;
+  cur = startIdx;
+  snapPositions(startIdx);
+  curEl.textContent = cur + 1;
+  function next() { go(cur + 1); }
+  function prev() { go(cur - 1); }
+  document.addEventListener("keydown", (e) => {
+    switch (e.key) {
+      case "ArrowRight": case " ": case "PageDown": e.preventDefault(); next(); break;
+      case "ArrowLeft": case "PageUp": e.preventDefault(); prev(); break;
+      case "Home": e.preventDefault(); go(0); break;
+      case "End": e.preventDefault(); go(total - 1); break;
+      case "f": case "F":
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+        break;
+    }
+  });
+  document.getElementById("navLeft").addEventListener("click", prev);
+  document.getElementById("navRight").addEventListener("click", next);
+
+  document.querySelectorAll(".day-row[data-goto]").forEach(tile => {
+    const handler = (e) => {
+      e.preventDefault();
+      go(parseInt(tile.dataset.goto, 10));
+    };
+    tile.addEventListener("click", handler);
+    tile.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") handler(e);
+    });
+  });
+  let tx = null;
+  deck.addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; }, { passive: true });
+  deck.addEventListener("touchend", (e) => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 60) (dx < 0 ? next : prev)();
+    tx = null;
+  });
+</script>
+</body>
+</html>
