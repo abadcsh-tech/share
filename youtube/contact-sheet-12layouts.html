@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>레이아웃 컨택트 시트 — AI 시대의 목회 (12 아키타입)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #024ad8;
+    --primary-bright: #296ef9;
+    --primary-deep: #0e3191;
+    --primary-soft: #c9e0fc;
+    --canvas: #ffffff;
+    --cloud: #f7f7f7;
+    --fog: #e8e8e8;
+    --hairline: #e8e8e8;
+    --steel: #c2c2c2;
+    --ink: #1a1a1a;
+    --ink-soft: #292929;
+    --on-ink: #ffffff;
+    --charcoal: #3d3d3d;
+    --graphite: #636363;
+    --bloom-coral: #ff5050;
+    --bloom-rose: #f9d4d2;
+    --font-base: "Inter", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, system-ui, sans-serif;
+    --font-serif: "Noto Serif KR", "Georgia", serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-base);
+    background: #0c0c0e;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 32px 80px;
+  }
+
+  /* ========== Page header ========== */
+  .page-head {
+    max-width: 1440px;
+    margin: 0 auto 32px;
+    color: #fff;
+  }
+  .page-head .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--primary-bright);
+    margin-bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .page-head h1 {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .page-head p {
+    color: rgba(255,255,255,0.65);
+    font-size: 15px;
+    line-height: 1.5;
+    max-width: 800px;
+  }
+  .page-head .legend {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  .page-head .legend strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.4; }
+  }
+
+  /* ========== Grid ========== */
+  .sheet {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .thumb {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .thumb-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    background: var(--canvas);
+    transition: transform 0.3s cubic-bezier(.2,.7,.3,1), box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  .thumb-frame:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 36px rgba(2,74,216,0.32);
+  }
+  .thumb-frame .badge {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: rgba(0,0,0,0.78);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    padding: 3px 7px;
+    border-radius: 3px;
+    z-index: 5;
+  }
+  .thumb-meta {
+    color: #fff;
+    padding: 0 4px;
+  }
+  .thumb-meta .num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: var(--primary-bright);
+  }
+  .thumb-meta h3 {
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.3;
+  }
+  .thumb-meta p {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.55);
+  }
+
+  /* ========== Inner mini-layout shared tokens ========== */
+  .mini { width: 100%; height: 100%; padding: 14px 18px; position: relative; }
+  .mini.dark { background: var(--ink); color: var(--on-ink); }
+  .mini.cloud { background: var(--cloud); color: var(--ink); }
+  .mini.fog { background: var(--fog); color: var(--ink); }
+
+  .m-eyebrow {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 6px;
+  }
+  .mini.dark .m-eyebrow { color: var(--primary-bright); }
+  .m-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+  }
+  .mini.dark .m-title { color: #fff; }
+  .m-body {
+    font-size: 7.5px;
+    line-height: 1.45;
+    color: var(--charcoal);
+  }
+  .mini.dark .m-body { color: rgba(255,255,255,0.72); }
+  .m-caption {
+    font-size: 6px;
+    color: var(--graphite);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .mini.dark .m-caption { color: rgba(255,255,255,0.5); }
+
+  .m-card {
+    background: var(--canvas);
+    border-radius: 5px;
+    padding: 8px 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .m-num {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary-deep);
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 8px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .m-h4 { font-size: 9px; font-weight: 600; line-height: 1.2; margin-bottom: 3px; }
+  .m-p { font-size: 6.5px; line-height: 1.4; color: var(--charcoal); }
+  .mini.dark .m-p { color: rgba(255,255,255,0.7); }
+
+  .m-btn {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-size: 6.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 4px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .m-coral {
+    display: inline-block;
+    background: var(--bloom-coral);
+    color: #fff;
+    font-size: 6.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 3px 6px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  /* =========================================================
+     1) Magazine — drop cap + 3-column body
+     ========================================================= */
+  .l1 .mini { padding: 14px 18px; }
+  .l1 .magazine-title {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .l1 .magazine-cols {
+    column-count: 3;
+    column-gap: 8px;
+    font-size: 6px;
+    line-height: 1.55;
+    color: var(--charcoal);
+  }
+  .l1 .magazine-cols::first-letter {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 700;
+    float: left;
+    line-height: 0.85;
+    margin: 2px 4px 0 0;
+    color: var(--primary);
+  }
+  .l1 .footer-line {
+    position: absolute;
+    bottom: 8px; left: 18px; right: 18px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 5px;
+    display: flex; justify-content: space-between;
+    font-size: 5.5px; color: var(--graphite); letter-spacing: 0.16em; text-transform: uppercase;
+  }
+
+  /* =========================================================
+     2) Editorial sidebar — main + pull-quote sidebar
+     ========================================================= */
+  .l2 .mini { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+  .l2 .left-col { padding-right: 8px; border-right: 1px solid var(--hairline); }
+  .l2 .right-col {
+    background: var(--cloud);
+    margin: -14px -18px -14px 0;
+    padding: 14px 14px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .l2 .pull {
+    font-family: var(--font-serif);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--ink);
+  }
+  .l2 .pull::before {
+    content: "“";
+    font-size: 28px;
+    line-height: 0;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .l2 .attr { margin-top: 8px; font-size: 6px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--graphite); }
+
+  /* =========================================================
+     3) Split screen — 좌:Before / 우:After (옛날 vs 지금)
+     ========================================================= */
+  .l3 .mini { padding: 0; display: grid; grid-template-columns: 1fr 1fr; }
+  .l3 .left {
+    background: var(--cloud);
+    color: var(--ink);
+    padding: 14px 16px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .l3 .right {
+    background: var(--ink);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .l3 .stamp {
+    font-size: 6px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .l3 .left .stamp { color: var(--graphite); }
+  .l3 .right .stamp { color: var(--primary-bright); }
+  .l3 .vlabel { font-size: 22px; font-weight: 600; line-height: 0.95; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .l3 .small { font-size: 6.5px; line-height: 1.4; }
+  .l3 .left .small { color: var(--charcoal); }
+  .l3 .right .small { color: rgba(255,255,255,0.7); }
+
+  /* =========================================================
+     4) Diagonal split — slanted divider (problem ↔ path)
+     ========================================================= */
+  .l4 .mini { padding: 0; position: relative; overflow: hidden; }
+  .l4 .left {
+    position: absolute; inset: 0;
+    background: var(--ink);
+    clip-path: polygon(0 0, 100% 0, 60% 100%, 0 100%);
+    color: #fff;
+    padding: 14px 16px;
+  }
+  .l4 .right {
+    position: absolute; inset: 0;
+    background: var(--canvas);
+    clip-path: polygon(60% 0, 100% 0, 100% 100%, 40% 100%);
+    color: var(--ink);
+    padding: 14px 14px;
+    display: flex; flex-direction: column; align-items: flex-end; text-align: right;
+  }
+  .l4 .right .m-eyebrow { color: var(--primary); }
+  .l4 .e1 { font-size: 6px; font-weight: 700; letter-spacing: 0.16em; color: var(--primary-bright); text-transform: uppercase; margin-bottom: 4px; }
+  .l4 .h1 { font-size: 13px; font-weight: 600; line-height: 1.05; max-width: 60%; }
+  .l4 .h2 { font-size: 13px; font-weight: 600; line-height: 1.05; max-width: 70%; }
+
+  /* =========================================================
+     5) Horizontal timeline — Part 1→2→3 dots on a line
+     ========================================================= */
+  .l5 .mini { display: flex; flex-direction: column; justify-content: center; padding: 18px 22px; }
+  .l5 .tl-headline { font-size: 14px; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 14px; }
+  .l5 .tl-track {
+    position: relative;
+    margin: 18px 0 12px;
+    height: 4px;
+    background: var(--hairline);
+    border-radius: 2px;
+  }
+  .l5 .tl-fill {
+    position: absolute; top: 0; left: 0;
+    height: 100%; width: 65%;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+  .l5 .tl-nodes { display: flex; justify-content: space-between; margin-top: -10px; }
+  .l5 .tl-node {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--canvas);
+    border: 3px solid var(--steel);
+    z-index: 2;
+  }
+  .l5 .tl-node.active { border-color: var(--primary); background: var(--primary); }
+  .l5 .tl-labels {
+    display: flex; justify-content: space-between; margin-top: 8px;
+    font-size: 6.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--graphite); font-weight: 600;
+  }
+  .l5 .tl-labels span.cur { color: var(--primary); }
+
+  /* =========================================================
+     6) Vertical stacked story — accumulating bullets
+     ========================================================= */
+  .l6 .mini { padding: 14px 18px; display: flex; flex-direction: column; }
+  .l6 .stack-title { font-size: 13px; font-weight: 600; line-height: 1.05; margin-bottom: 10px; }
+  .l6 .stack-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-top: 1px solid var(--hairline);
+    font-size: 7px;
+  }
+  .l6 .stack-row:first-of-type { border-top: none; }
+  .l6 .stack-num { font-size: 12px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .l6 .stack-name { color: var(--ink); font-weight: 500; }
+  .l6 .stack-bar {
+    width: 60px;
+    height: 4px;
+    background: var(--cloud);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .l6 .stack-bar::after {
+    content: "";
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--primary);
+    border-radius: 2px;
+    width: var(--w, 50%);
+  }
+
+  /* =========================================================
+     7) Venn diagram — 인간 vs AI 교집합
+     ========================================================= */
+  .l7 .mini { padding: 14px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: center; }
+  .l7 .left h4 { font-size: 11px; font-weight: 600; line-height: 1.1; margin-bottom: 6px; }
+  .l7 .left p { font-size: 6.5px; line-height: 1.45; color: var(--charcoal); }
+  .l7 .venn { position: relative; width: 100%; aspect-ratio: 1.4 / 1; }
+  .l7 .circle {
+    position: absolute;
+    width: 60%; aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; font-weight: 700; letter-spacing: 0.08em;
+  }
+  .l7 .circle.a { left: 0; background: rgba(2,74,216,0.10); border-color: var(--primary); color: var(--primary); }
+  .l7 .circle.b { right: 0; background: rgba(26,26,26,0.04); color: var(--ink); }
+  .l7 .venn-label { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); font-size: 6px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--graphite); font-weight: 600; }
+
+  /* =========================================================
+     8) Flow diagram — 옛날 → 일반 → 상위 20% 화살표
+     ========================================================= */
+  .l8 .mini { padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; }
+  .l8 .flow-title { font-size: 12px; font-weight: 600; line-height: 1.1; margin-bottom: 14px; }
+  .l8 .flow { display: grid; grid-template-columns: 1fr 16px 1fr 16px 1fr; gap: 6px; align-items: center; }
+  .l8 .flow-step {
+    background: var(--cloud);
+    border-radius: 5px;
+    padding: 8px;
+    text-align: center;
+  }
+  .l8 .flow-step.featured {
+    background: var(--primary);
+    color: #fff;
+  }
+  .l8 .flow-step .label { font-size: 6.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
+  .l8 .flow-step .name { font-size: 9px; font-weight: 600; margin-top: 3px; }
+  .l8 .flow-arrow {
+    text-align: center;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* =========================================================
+     9) Conversation / chat bubbles — 목회자 ↔ 성도
+     ========================================================= */
+  .l9 .mini { padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+  .l9 .bubble {
+    max-width: 70%;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 7px;
+    line-height: 1.35;
+  }
+  .l9 .bubble.them { background: var(--cloud); color: var(--ink); border-top-left-radius: 2px; align-self: flex-start; }
+  .l9 .bubble.me { background: var(--primary); color: #fff; border-top-right-radius: 2px; align-self: flex-end; }
+  .l9 .bubble .who { font-size: 5.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; margin-bottom: 2px; display: block; }
+  .l9 .bubble.me .who { opacity: 0.7; }
+  .l9 .typing {
+    align-self: flex-start;
+    background: var(--cloud);
+    padding: 6px 10px;
+    border-radius: 10px;
+    border-top-left-radius: 2px;
+  }
+  .l9 .typing span {
+    display: inline-block;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--graphite);
+    margin-right: 2px;
+    animation: typing 1.2s ease-in-out infinite;
+  }
+  .l9 .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .l9 .typing span:nth-child(3) { animation-delay: 0.30s; }
+  @keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-2px); }
+  }
+
+  /* =========================================================
+     10) Bento grid — varied tile sizes
+     ========================================================= */
+  .l10 .mini {
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+  }
+  .l10 .tile {
+    background: var(--cloud);
+    border-radius: 5px;
+    padding: 7px 9px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .l10 .tile.dark { background: var(--ink); color: #fff; }
+  .l10 .tile.primary { background: var(--primary); color: #fff; }
+  .l10 .tile.coral { background: var(--bloom-coral); color: #fff; }
+  .l10 .tile.span-2 { grid-row: span 2; }
+  .l10 .tile.span-col-2 { grid-column: span 2; }
+  .l10 .tile .lbl { font-size: 5.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.65; }
+  .l10 .tile .v { font-size: 12px; font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; }
+
+  /* =========================================================
+     11) Full-bleed huge type — 110px display
+     ========================================================= */
+  .l11 .mini {
+    padding: 18px 22px;
+    display: flex; flex-direction: column; justify-content: center;
+    background: var(--ink);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .l11 .corner-num {
+    position: absolute;
+    top: 8px; right: 14px;
+    font-size: 6px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.16em;
+  }
+  .l11 .huge {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+    color: #fff;
+  }
+  .l11 .huge .accent { color: var(--bloom-coral); }
+  .l11 .sub {
+    margin-top: 10px;
+    font-size: 7px;
+    color: rgba(255,255,255,0.55);
+    max-width: 80%;
+    line-height: 1.4;
+  }
+
+  /* =========================================================
+     12) Stamp / ticket — official document metaphor
+     ========================================================= */
+  .l12 .mini { padding: 0; background: var(--cloud); }
+  .l12 .ticket {
+    height: 100%;
+    background: var(--canvas);
+    margin: 8px;
+    border-radius: 5px;
+    border: 1px dashed var(--steel);
+    padding: 10px 14px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .l12 .ticket-head {
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .l12 .ticket-head .stamp {
+    font-size: 6px; font-weight: 700;
+    color: var(--bloom-coral);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--bloom-coral);
+    padding: 2px 5px;
+    border-radius: 2px;
+    transform: rotate(-3deg);
+  }
+  .l12 .ticket-head .meta {
+    font-size: 5.5px; letter-spacing: 0.1em; color: var(--graphite); text-transform: uppercase; font-weight: 600;
+  }
+  .l12 .ticket-title {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .l12 .ticket-body { font-size: 6.5px; line-height: 1.45; color: var(--charcoal); }
+  .l12 .ticket-foot {
+    margin-top: auto;
+    border-top: 1px dashed var(--steel);
+    padding-top: 5px;
+    display: flex; justify-content: space-between;
+    font-size: 5.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--graphite);
+  }
+  .l12 .ticket-foot .id { font-family: monospace; letter-spacing: 0.08em; }
+
+  /* ========== Footer / Legend ========== */
+  .page-foot {
+    max-width: 1440px;
+    margin: 48px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .page-foot strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+  /* Responsive */
+  @media (max-width: 1280px) {
+    .sheet { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .sheet { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 540px) {
+    .sheet { grid-template-columns: 1fr; }
+    body { padding: 24px 16px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <span class="eyebrow"><span class="pulse-dot"></span>Layout Contact Sheet · 2026</span>
+  <h1>레이아웃 아키타입 12종 — AI 시대의 목회</h1>
+  <p>같은 강의 원고에 12가지 다른 구조·구성 디자인을 적용한 컨택트 시트. 각 썸네일은 실제 슬라이드 1장의 축소판으로, 디자인 토큰·타이포·구조의 비례를 그대로 유지하고 있습니다. 마음에 드는 1~2개를 골라 시안 3 (또는 4)으로 본격 개발 가능.</p>
+  <div class="legend">
+    <span><strong>읽는 법</strong> · 좌상단 번호 → 아키타입 이름 → 한 줄 설명</span>
+    <span>·</span>
+    <span><strong>같은 원고</strong> · 슬라이드별로 적용 후보 슬라이드 번호 표기</span>
+    <span>·</span>
+    <span><strong>같은 토큰</strong> · HP 디자인 시스템(primary #024ad8, ink #1a1a1a) 공유</span>
+  </div>
+</header>
+
+<main class="sheet">
+
+  <!-- 01 Magazine -->
+  <div class="thumb l1">
+    <div class="thumb-frame">
+      <span class="badge">01</span>
+      <div class="mini">
+        <div class="m-eyebrow">현실 · CHAPTER 01</div>
+        <h2 class="magazine-title">성도들은 이미<br/>AI의 영향 속에<br/>살고 있습니다.</h2>
+        <div class="magazine-cols">
+          현대를 살아가는 사람이라면 누구도 이 흐름 밖에 있을 수 없습니다. 목회자가 이 흐름을 모른 채 강단에 선다면 우리가 외치는 말씀은 그들의 삶에 닿지 못합니다. 인간의 존엄성이 어디에 있는가 하는 질문을 점점 더 자주 던지게 만들 것입니다.
+        </div>
+        <div class="footer-line">
+          <span>For Pastors</span>
+          <span>P. 04 / 17</span>
+        </div>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">01 · MAGAZINE</span>
+      <h3>편집자 · 다단 본문 + Drop Cap</h3>
+      <p>Slide 4 적용 — Noto Serif 헤드라인 + 3컬럼 본문 + 첫 글자 강조</p>
+    </div>
+  </div>
+
+  <!-- 02 Editorial sidebar -->
+  <div class="thumb l2">
+    <div class="thumb-frame">
+      <span class="badge">02</span>
+      <div class="mini">
+        <div class="left-col">
+          <div class="m-eyebrow">불변의 진리</div>
+          <h2 class="m-title" style="font-size: 14px; margin-bottom: 6px;">어떤 시대를 살더라도 <span style="color: var(--primary);">말씀과 기도</span>가 중심.</h2>
+          <p class="m-body">중심이 흔들리면 무너집니다. 거꾸로, AI를 활용해 우리가 더 말씀과 기도에 집중할 수 있는 환경을 만들 수도 있습니다.</p>
+          <div style="margin-top: 6px;"><span class="m-btn">계속 보기 →</span></div>
+        </div>
+        <div class="right-col">
+          <p class="pull">중심이 되지 않으면 무너집니다.</p>
+          <p class="attr">— Slide 12, 변하지 않는 중심</p>
+        </div>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">02 · EDITORIAL</span>
+      <h3>편집자 · 본문 + 사이드바 인용</h3>
+      <p>Slide 12 적용 — 좌측 본문, 우측 풀쿼트 사이드바 패널</p>
+    </div>
+  </div>
+
+  <!-- 03 Split before/after -->
+  <div class="thumb l3">
+    <div class="thumb-frame">
+      <span class="badge">03</span>
+      <div class="mini">
+        <div class="left">
+          <div class="stamp">BEFORE</div>
+          <div class="vlabel">옛날</div>
+          <p class="small">유튜브도 저울도 없던 시대. 감각과 전통에 의존해 스스로 답을 찾았습니다.</p>
+        </div>
+        <div class="right">
+          <div class="stamp">NOW</div>
+          <div class="vlabel">지금</div>
+          <p class="small">레시피를 따라가면 일반적 맛. 변형하면 상위 20%.</p>
+        </div>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">03 · SPLIT</span>
+      <h3>분할 화면 · Before / After</h3>
+      <p>Slide 11 적용 — 좌:라이트 옛날 / 우:다크 지금. 50:50 대비</p>
+    </div>
+  </div>
+
+  <!-- 04 Diagonal split -->
+  <div class="thumb l4">
+    <div class="thumb-frame">
+      <span class="badge">04</span>
+      <div class="mini">
+        <div class="left">
+          <div class="e1">EXTREME</div>
+          <p class="h1">무비판적 사용 · 무관심 회피</p>
+          <p style="font-size: 6px; color: rgba(255,255,255,0.6); line-height: 1.4; margin-top: 6px;">두 극단 모두 또 다른 문제가 됩니다.</p>
+        </div>
+        <div class="right">
+          <div class="e1">PATH</div>
+          <p class="h2">계속 고민하며,<br/>분별하며.</p>
+        </div>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">04 · DIAGONAL</span>
+      <h3>대각선 분할 · 양극 ↔ 길</h3>
+      <p>Slide 9 적용 — 사선 clip-path로 다크 좌측 + 라이트 우측 대비</p>
+    </div>
+  </div>
+
+  <!-- 05 Horizontal timeline -->
+  <div class="thumb l5">
+    <div class="thumb-frame">
+      <span class="badge">05</span>
+      <div class="mini">
+        <div class="m-eyebrow">강의 흐름 · 진행 상황</div>
+        <p class="tl-headline">3부작 — 도전 · 자세 · 학습</p>
+        <div class="tl-track">
+          <div class="tl-fill"></div>
+          <div class="tl-nodes">
+            <div class="tl-node active"></div>
+            <div class="tl-node active"></div>
+            <div class="tl-node"></div>
+          </div>
+        </div>
+        <div class="tl-labels">
+          <span class="cur">PART 01 · 도전</span>
+          <span class="cur">PART 02 · 자세</span>
+          <span>PART 03 · 학습</span>
+        </div>
+        <p style="margin-top: 12px; font-size: 6.5px; line-height: 1.5; color: var(--charcoal);">현재 위치 — 목회자의 자세. 윤리적 고민의 두 극단 사이를 끊임없이 오갑니다.</p>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">05 · TIMELINE</span>
+      <h3>수평 타임라인 · 진행 노드</h3>
+      <p>Part 디바이더용 — 강의 전체 흐름을 매 챕터 시작에서 보여줌</p>
+    </div>
+  </div>
+
+  <!-- 06 Vertical stacked story / data -->
+  <div class="thumb l6">
+    <div class="thumb-frame">
+      <span class="badge">06</span>
+      <div class="mini">
+        <div class="m-eyebrow">DATA · 2026</div>
+        <p class="stack-title">대체되는 화이트칼라 직군</p>
+        <div class="stack-row">
+          <span class="stack-num">01</span>
+          <span class="stack-name">세무사</span>
+          <span class="stack-bar" style="--w: 62%;"></span>
+        </div>
+        <div class="stack-row">
+          <span class="stack-num">02</span>
+          <span class="stack-name">변호사 보조</span>
+          <span class="stack-bar" style="--w: 74%;"></span>
+        </div>
+        <div class="stack-row">
+          <span class="stack-num">03</span>
+          <span class="stack-name">변리사</span>
+          <span class="stack-bar" style="--w: 81%;"></span>
+        </div>
+        <div class="stack-row">
+          <span class="stack-num">04</span>
+          <span class="stack-name">신입 인턴 자리</span>
+          <span class="stack-bar" style="--w: 24%;"></span>
+        </div>
+        <p style="margin-top: 8px; font-size: 5.5px; color: var(--graphite); letter-spacing: 0.06em;">* 강의용 추정 예시</p>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">06 · STACKED DATA</span>
+      <h3>수직 누적 · 데이터 리스트</h3>
+      <p>Slide 6 적용 — 직업 대체 진행도를 행 단위 막대로 누적 표시</p>
+    </div>
+  </div>
+
+  <!-- 07 Venn diagram -->
+  <div class="thumb l7">
+    <div class="thumb-frame">
+      <span class="badge">07</span>
+      <div class="mini">
+        <div class="left">
+          <div class="m-eyebrow">우리가 가르쳐야 할 것</div>
+          <h4>인간은 대체될 수<br/>없는 존재.</h4>
+          <p>효율성·지능·정보 — 그 어떤 것으로도 환원되지 않는 영역이 인간에게 있습니다.</p>
+        </div>
+        <div class="venn">
+          <div class="venn-label">교집합 = 도구로서의 AI</div>
+          <div class="circle a">인간</div>
+          <div class="circle b">AI</div>
+        </div>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">07 · VENN</span>
+      <h3>다이어그램 · 벤다이어그램</h3>
+      <p>Slide 7 적용 — 인간과 AI의 교집합·차집합을 시각적으로</p>
+    </div>
+  </div>
+
+  <!-- 08 Flow diagram -->
+  <div class="thumb l8">
+    <div class="thumb-frame">
+      <span class="badge">08</span>
+      <div class="mini">
+        <div class="m-eyebrow">교육 방법론 · 단계 진행</div>
+        <p class="flow-title">기술과 함께 잘 가르치는 법.</p>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="label">STEP 01</div>
+            <div class="name">옛날</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="label">STEP 02</div>
+            <div class="name">일반</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step featured">
+            <div class="label">STEP 03</div>
+            <div class="name">상위 20%</div>
+          </div>
+        </div>
+        <p style="margin-top: 12px; font-size: 6px; line-height: 1.4; color: var(--charcoal);">레시피를 따라가는 것 → 변형해가며 자기만의 방법을 찾는 것.</p>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">08 · FLOW</span>
+      <h3>다이어그램 · 단계 플로우</h3>
+      <p>Slide 11 적용 — 옛날 → 일반 → 상위 20% 화살표로 연결</p>
+    </div>
+  </div>
+
+  <!-- 09 Conversation chat -->
+  <div class="thumb l9">
+    <div class="thumb-frame">
+      <span class="badge">09</span>
+      <div class="mini cloud">
+        <div class="bubble them">
+          <span class="who">성도</span>
+          요즘 일자리가 점점 사라지는데, 어떻게 해야 할까요?
+        </div>
+        <div class="bubble me">
+          <span class="who">목회자</span>
+          말씀과 기도로 다 됩니다.
+        </div>
+        <div class="bubble them">
+          <span class="who">성도</span>
+          …
+        </div>
+        <div class="typing"><span></span><span></span><span></span></div>
+        <p style="margin-top: 4px; font-size: 5.5px; color: var(--graphite); text-align: center; letter-spacing: 0.08em;">환경에 닿지 않는 선포 — Slide 5</p>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">09 · CONVERSATION</span>
+      <h3>대화 · 채팅 풍선</h3>
+      <p>Slide 5 적용 — 정해진 틀의 답변이 닿지 않는 순간을 시뮬레이션</p>
+    </div>
+  </div>
+
+  <!-- 10 Bento grid -->
+  <div class="thumb l10">
+    <div class="thumb-frame">
+      <span class="badge">10</span>
+      <div class="mini">
+        <div class="tile dark span-2" style="justify-content: flex-start;">
+          <div class="lbl" style="color: var(--primary-bright);">PART 01</div>
+          <div class="v" style="margin-top: auto;">목회적<br/>도전</div>
+        </div>
+        <div class="tile primary">
+          <div class="lbl">PART 02</div>
+          <div class="v" style="margin-top: auto;">자세</div>
+        </div>
+        <div class="tile">
+          <div class="lbl">SLIDE 06</div>
+          <div class="v" style="color: var(--ink); margin-top: auto;">대체</div>
+        </div>
+        <div class="tile coral">
+          <div class="lbl">CAUTION</div>
+          <div class="v" style="margin-top: auto;">주의</div>
+        </div>
+        <div class="tile span-col-2">
+          <div class="lbl">PART 03</div>
+          <div class="v" style="color: var(--ink); margin-top: auto;">새로운 학습 → 깨어짐 + 확장</div>
+        </div>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">10 · BENTO</span>
+      <h3>벤토 그리드 · 다양한 타일 사이즈</h3>
+      <p>Slide 2 / 17 적용 — 학습 목표·결론 요약을 비대칭 타일로</p>
+    </div>
+  </div>
+
+  <!-- 11 Full-bleed huge type -->
+  <div class="thumb l11">
+    <div class="thumb-frame">
+      <span class="badge">11</span>
+      <div class="mini dark">
+        <span class="corner-num">SLIDE 05 / 17</span>
+        <p style="font-size: 6px; color: var(--bloom-coral); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">● 주의 · CAUTION</p>
+        <h2 class="huge">정해진 틀에 맞춘<br/>말씀은 때로 복음이<br/>아니라 <span class="accent">폭력적</span><br/><span class="accent">언어</span>가 됩니다.</h2>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">11 · BIG TYPE</span>
+      <h3>풀블리드 · 거대 타이포만</h3>
+      <p>Slide 5 적용 — 다크 슬랩 위 110px 타이포만, 카드 없이</p>
+    </div>
+  </div>
+
+  <!-- 12 Stamp / ticket -->
+  <div class="thumb l12">
+    <div class="thumb-frame">
+      <span class="badge">12</span>
+      <div class="mini">
+        <div class="ticket">
+          <div class="ticket-head">
+            <div class="meta">목회자 윤리 통보 #03</div>
+            <div class="stamp">URGENT</div>
+          </div>
+          <p class="ticket-title">현장에서 사라지는 직업, 쏟아지는 자격증.</p>
+          <p class="ticket-body">세무사 · 변호사 · 변리사 — 인생을 바쳐 자격증을 땄는데, 정작 할 일이 없는 성도들이 쏟아져 나올 것입니다.</p>
+          <div class="ticket-foot">
+            <span>Slide 06</span>
+            <span class="id">REF-2026-AI-003</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="thumb-meta">
+      <span class="num">12 · STAMP / TICKET</span>
+      <h3>고지서 · 스탬프 메타포</h3>
+      <p>Slide 6 적용 — 점선 테두리 + URGENT 스탬프로 공식 문서 느낌</p>
+    </div>
+  </div>
+
+</main>
+
+<footer class="page-foot">
+  <p><strong>다음 단계</strong> — 마음에 드는 1~2개 아키타입 번호를 알려주세요. 본격 17장 슬라이드로 개발해 시안 3 (또는 4) 으로 저장합니다. 여러 개 골라 한 시안 안에서 슬라이드별 다른 아키타입을 섞는 것도 가능합니다.</p>
+</footer>
+
+</body>
+</html>

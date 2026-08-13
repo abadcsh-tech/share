@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>AI 시대의 목회적 도전과 대응 — 시안 3 (멀티 아키타입)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #024ad8;
+    --primary-bright: #296ef9;
+    --primary-deep: #0e3191;
+    --primary-soft: #c9e0fc;
+    --canvas: #ffffff;
+    --paper: #ffffff;
+    --cloud: #f7f7f7;
+    --fog: #e8e8e8;
+    --steel: #c2c2c2;
+    --hairline: #e8e8e8;
+    --bloom-coral: #ff5050;
+    --bloom-rose: #f9d4d2;
+    --ink: #1a1a1a;
+    --ink-deep: #000000;
+    --ink-soft: #292929;
+    --on-ink: #ffffff;
+    --charcoal: #3d3d3d;
+    --graphite: #636363;
+
+    --xs: 8px; --sm: 12px; --md: 16px; --lg: 20px; --xl: 24px; --xxl: 32px; --xxxl: 48px;
+    --r-xs: 2px; --r-sm: 3px; --r-md: 4px; --r-lg: 8px; --r-xl: 16px; --r-pill: 9999px;
+    --soft-lift: 0 2px 8px rgba(26,26,26,0.08);
+    --hover-lift: 0 14px 32px rgba(2,74,216,0.14), 0 4px 12px rgba(26,26,26,0.06);
+
+    --font-base: "Inter", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-base);
+    color: var(--ink);
+    background: #000;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* =========================================================
+     Stage / slide
+     ========================================================= */
+  .stage { position: fixed; inset: 0; overflow: hidden; }
+  .reel { position: relative; height: 100%; width: 100%; perspective: 2000px; transform-style: preserve-3d; }
+  .slide {
+    position: absolute; inset: 0; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    padding: clamp(48px, 7vh, 96px) clamp(40px, 7vw, 120px);
+    opacity: 0; pointer-events: none;
+    transform: translateX(100%);
+    backface-visibility: hidden;
+    will-change: transform, opacity, filter;
+  }
+  .slide.is-animating {
+    transition: transform 0.7s cubic-bezier(.65,0,.2,1),
+                opacity 0.5s ease, filter 0.5s ease;
+  }
+  .slide.is-current {
+    opacity: 1; pointer-events: auto;
+    transform: translateX(0); z-index: 2; filter: none;
+  }
+
+  .stage[data-transition="push"] .slide.is-prev { transform: translateX(-100%); opacity: 1; }
+  .stage[data-transition="push"] .slide.is-next { transform: translateX(100%); opacity: 1; }
+  .stage[data-transition="fade"] .slide.is-prev,
+  .stage[data-transition="fade"] .slide.is-next { transform: scale(1.05); opacity: 0; filter: blur(6px); }
+  .stage[data-transition="flip"][data-dir="fwd"] .slide.is-prev { transform: rotateY(-90deg); opacity: 0; }
+  .stage[data-transition="flip"][data-dir="fwd"] .slide.is-next { transform: rotateY(90deg); opacity: 0; }
+  .stage[data-transition="flip"][data-dir="back"] .slide.is-prev { transform: rotateY(90deg); opacity: 0; }
+  .stage[data-transition="flip"][data-dir="back"] .slide.is-next { transform: rotateY(-90deg); opacity: 0; }
+  .stage[data-transition="rise"][data-dir="fwd"] .slide.is-prev { transform: translateY(-30%); opacity: 0; }
+  .stage[data-transition="rise"][data-dir="fwd"] .slide.is-next { transform: translateY(30%); opacity: 0; }
+  .stage[data-transition="rise"][data-dir="back"] .slide.is-prev { transform: translateY(30%); opacity: 0; }
+  .stage[data-transition="rise"][data-dir="back"] .slide.is-next { transform: translateY(-30%); opacity: 0; }
+
+  .slide-inner {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    text-align: left;
+    position: relative;
+  }
+
+  .slide-canvas { background: var(--canvas); color: var(--ink); }
+  .slide-cloud { background: var(--cloud); color: var(--ink); }
+  .slide-fog { background: var(--fog); color: var(--ink); }
+  .slide-ink { background: var(--ink); color: var(--on-ink); }
+  .slide-split { background: var(--canvas); padding: 0 !important; }
+
+  /* =========================================================
+     Typography
+     ========================================================= */
+  .display-xxl { font-size: clamp(60px, 9.5vw, 102px); font-weight: 500; line-height: 0.98; letter-spacing: -0.025em; }
+  .display-xl  { font-size: clamp(48px, 7.4vw, 78px); font-weight: 500; line-height: 1.02; letter-spacing: -0.015em; }
+  .display-lg  { font-size: clamp(38px, 5.6vw, 60px); font-weight: 500; line-height: 1.06; letter-spacing: -0.01em; }
+  .display-md  { font-size: clamp(30px, 4.0vw, 44px); font-weight: 500; line-height: 1.12; }
+  .display-sm  { font-size: clamp(22px, 2.8vw, 30px); font-weight: 500; line-height: 1.18; }
+  .body-lg     { font-size: clamp(18px, 1.85vw, 23px); font-weight: 400; line-height: 1.5; word-break: keep-all; }
+  .body-md     { font-size: clamp(16px, 1.45vw, 19px); font-weight: 400; line-height: 1.6; word-break: keep-all; }
+  .body-emphasis { font-weight: 500; }
+  .caption-bold { font-size: 14px; font-weight: 700; line-height: 1.3; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .eyebrow {
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 24px;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .slide-ink .eyebrow { color: var(--primary-bright); }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.4; }
+  }
+
+  .lead { color: var(--charcoal); max-width: 1100px; }
+  .slide-ink .lead { color: rgba(255,255,255,0.82); }
+  .accent { color: var(--primary); }
+  .slide-ink .accent { color: var(--primary-bright); }
+
+  /* SVG underline draw */
+  .underline-key { position: relative; display: inline-block; color: var(--primary); }
+  .slide-ink .underline-key { color: var(--primary-bright); }
+  .underline-key svg {
+    position: absolute; left: 0; bottom: -8px;
+    width: 100%; height: 12px; overflow: visible;
+  }
+  .underline-key svg path {
+    fill: none; stroke: currentColor; stroke-width: 4; stroke-linecap: round;
+    stroke-dasharray: 600; stroke-dashoffset: 600;
+    transition: stroke-dashoffset 0.9s cubic-bezier(.6,0,.2,1) 0.6s;
+  }
+  .slide.is-current .underline-key svg path { stroke-dashoffset: 0; }
+
+  /* =========================================================
+     Top utility, progress, nav, hint
+     ========================================================= */
+  .utility-strip {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 36px;
+    background: var(--ink); color: var(--on-ink);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; z-index: 60;
+    font-size: 13px; letter-spacing: 0.02em;
+  }
+  .utility-strip .left, .utility-strip .right {
+    display: flex; gap: 18px; align-items: center;
+    color: rgba(255,255,255,0.78);
+  }
+  .utility-strip .right .sep { color: rgba(255,255,255,0.3); }
+  .utility-strip .right strong { color: #fff; font-weight: 600; }
+  .utility-strip .marquee { overflow: hidden; flex: 1; margin: 0 36px; color: rgba(255,255,255,0.5); font-size: 12px; letter-spacing: 0.18em; }
+  .utility-strip .marquee-inner {
+    display: inline-block; white-space: nowrap;
+    animation: marquee 28s linear infinite;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .top-bar-progress {
+    position: fixed; top: 36px; left: 0; right: 0;
+    height: 3px; background: var(--hairline); z-index: 60;
+  }
+  .top-bar-progress i {
+    display: block; height: 100%;
+    background: var(--primary);
+    transition: width 0.6s cubic-bezier(.2,.7,.3,1);
+  }
+
+  .corner-counter {
+    position: fixed; bottom: 22px; right: 28px; z-index: 55;
+    font-size: 13px; color: var(--graphite);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.1em;
+    pointer-events: none; font-weight: 500;
+  }
+  .stage[data-bg="ink"] .corner-counter { color: rgba(255,255,255,0.55); }
+
+  .hint-bar {
+    position: fixed; bottom: 18px; left: 28px; z-index: 55;
+    display: flex; gap: 10px; align-items: center;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    padding: 8px 14px; border-radius: var(--r-md);
+    font-size: 12px; color: var(--graphite);
+    transition: opacity 0.5s ease, background 0.4s, color 0.4s, border-color 0.4s;
+  }
+  .stage[data-bg="ink"] .hint-bar {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+  }
+  .hint-bar.fade { opacity: 0.18; }
+  .hint-bar:hover { opacity: 1 !important; }
+  .hint-bar kbd {
+    font-family: var(--font-base); font-size: 11px; font-weight: 700;
+    background: var(--cloud); border-radius: var(--r-xs);
+    padding: 3px 6px; color: var(--ink);
+  }
+  .stage[data-bg="ink"] .hint-bar kbd { background: rgba(255,255,255,0.12); color: #fff; }
+
+  .nav-zone {
+    position: fixed; top: 36px; bottom: 0;
+    width: 14%; z-index: 30; cursor: pointer;
+  }
+  .nav-zone.left { left: 0; }
+  .nav-zone.right { right: 0; }
+  .nav-zone .arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 52px; height: 52px;
+    border-radius: var(--r-md);
+    background: var(--canvas); border: 1px solid var(--hairline);
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .nav-zone.left .arrow { left: 22px; }
+  .nav-zone.right .arrow { right: 22px; }
+  .nav-zone:hover .arrow { opacity: 1; }
+  .stage[data-bg="ink"] .nav-zone .arrow {
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+
+  /* =========================================================
+     Buttons
+     ========================================================= */
+  .btn-primary, .btn-outline, .btn-ink {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 16px 32px; height: 52px;
+    border-radius: var(--r-md);
+    font-size: 15px; font-weight: 700;
+    letter-spacing: 0.7px; text-transform: uppercase;
+    border: none; cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(2,74,216,0.32); background: var(--primary-deep); }
+  .btn-outline { background: var(--canvas); color: var(--primary); border: 1px solid var(--primary); }
+  .btn-outline:hover { background: var(--primary-soft); }
+  .btn-arrow { transition: transform 0.25s; }
+  .btn-primary:hover .btn-arrow, .btn-outline:hover .btn-arrow { transform: translateX(6px); }
+
+  .badge-coral {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bloom-coral); color: #fff;
+    padding: 6px 14px; border-radius: var(--r-sm);
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  .cta-row { display: flex; gap: 16px; margin-top: 44px; flex-wrap: wrap; align-items: center; }
+  .section-head { max-width: 1200px; margin-bottom: 44px; }
+
+  /* Build animation */
+  .build {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.7s cubic-bezier(.2,.7,.3,1);
+  }
+  .slide.is-current .build { opacity: 1; transform: translateY(0); }
+  .slide.is-current .build:nth-of-type(1) { transition-delay: 0.10s; }
+  .slide.is-current .build:nth-of-type(2) { transition-delay: 0.22s; }
+  .slide.is-current .build:nth-of-type(3) { transition-delay: 0.34s; }
+  .slide.is-current .build:nth-of-type(4) { transition-delay: 0.46s; }
+  .slide.is-current .build:nth-of-type(5) { transition-delay: 0.58s; }
+  .slide.is-current .build:nth-of-type(6) { transition-delay: 0.70s; }
+  .slide.is-current .build:nth-of-type(7) { transition-delay: 0.82s; }
+
+  /* =========================================================
+     ARCH 01 — HERO with chevrons
+     ========================================================= */
+  .chevron {
+    position: absolute; top: 50%;
+    width: 110px; height: 70%;
+    background: var(--primary); z-index: 0;
+    opacity: 0;
+    transition: transform 0.9s cubic-bezier(.2,.7,.3,1) 0.3s, opacity 0.6s ease 0.3s;
+  }
+  .chevron.left {
+    left: -55px;
+    clip-path: polygon(40% 0, 100% 0, 60% 100%, 0% 100%);
+    transform: translate(-100%, -50%);
+  }
+  .chevron.right {
+    right: -55px;
+    clip-path: polygon(0 0, 60% 0, 100% 100%, 40% 100%);
+    transform: translate(100%, -50%);
+  }
+  .slide.is-current .chevron.left { opacity: 1; transform: translate(0, -50%); }
+  .slide.is-current .chevron.right { opacity: 1; transform: translate(0, -50%); }
+  .hero-stage { position: relative; max-width: 1180px; margin: 0 auto; }
+  .hero-card {
+    background: var(--canvas);
+    border-radius: var(--r-xl);
+    padding: 80px 72px;
+    box-shadow: var(--soft-lift);
+    position: relative; z-index: 1;
+  }
+
+  /* =========================================================
+     ARCH 02 — BENTO
+     ========================================================= */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+    height: 60vh;
+    max-height: 520px;
+  }
+  .bento-tile {
+    border-radius: var(--r-xl);
+    padding: 28px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: var(--soft-lift);
+  }
+  .bento-tile:hover { transform: translateY(-4px); box-shadow: var(--hover-lift); }
+  .bento-tile.t-ink { background: var(--ink); color: #fff; }
+  .bento-tile.t-primary { background: var(--primary); color: #fff; }
+  .bento-tile.t-soft { background: var(--primary-soft); color: var(--primary-deep); }
+  .bento-tile.t-canvas { background: var(--canvas); }
+  .bento-tile.t-coral { background: var(--bloom-coral); color: #fff; }
+  .bento-tile.span-2x2 { grid-column: span 2; grid-row: span 2; padding: 40px; }
+  .bento-tile.span-c2 { grid-column: span 2; }
+  .bento-tile.span-r2 { grid-row: span 2; }
+  .bento-tile .b-label {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .bento-tile .b-num {
+    font-size: clamp(40px, 7vw, 80px); font-weight: 600;
+    line-height: 0.9; letter-spacing: -0.03em;
+    margin-top: auto;
+  }
+  .bento-tile .b-name {
+    font-size: clamp(22px, 2.6vw, 32px); font-weight: 500;
+    line-height: 1.1; margin-top: 12px;
+  }
+  .bento-tile .b-body {
+    font-size: 14px; line-height: 1.5; opacity: 0.78;
+    margin-top: 12px;
+  }
+
+  /* =========================================================
+     ARCH 03 — TIMELINE (Part dividers)
+     ========================================================= */
+  .section-num-watermark {
+    font-size: clamp(140px, 22vw, 320px);
+    font-weight: 800;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: var(--primary-bright);
+    opacity: 0.16;
+    position: absolute;
+    top: 50%; right: -20px;
+    transform: translateY(-50%);
+    pointer-events: none; user-select: none;
+  }
+  .timeline-wrap {
+    margin-top: 56px;
+    max-width: 1100px;
+  }
+  .timeline-track {
+    position: relative;
+    height: 6px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px;
+  }
+  .timeline-fill {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: var(--primary-bright);
+    border-radius: 3px;
+    transition: width 1.4s cubic-bezier(.2,.7,.3,1) 0.3s;
+  }
+  .timeline-nodes {
+    display: flex; justify-content: space-between;
+    position: absolute; left: 0; right: 0; top: 50%;
+    transform: translateY(-50%);
+  }
+  .timeline-node {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 4px solid rgba(255,255,255,0.18);
+    transition: background 0.3s, border-color 0.3s, transform 0.4s;
+  }
+  .timeline-node.active {
+    background: var(--primary-bright);
+    border-color: rgba(41,110,249,0.35);
+    transform: scale(1.15);
+  }
+  .timeline-labels {
+    display: flex; justify-content: space-between;
+    margin-top: 24px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    font-weight: 700;
+  }
+  .timeline-labels span.cur { color: var(--primary-bright); }
+  .timeline-labels span.done { color: rgba(255,255,255,0.85); }
+
+  /* =========================================================
+     ARCH 04 — MAGAZINE
+     ========================================================= */
+  .magazine {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 1280px;
+  }
+  .magazine .mag-eyebrow {
+    font-family: var(--font-base);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 16px;
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 8px 0;
+    display: flex; justify-content: space-between;
+  }
+  .magazine .mag-title {
+    font-family: var(--font-base);
+    font-size: clamp(44px, 6.8vw, 72px);
+    font-weight: 500;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin-bottom: 28px;
+    color: var(--ink);
+    max-width: 1100px;
+  }
+  .magazine .mag-cols {
+    column-count: 3;
+    column-gap: 36px;
+    column-rule: 1px solid var(--hairline);
+    font-size: clamp(15px, 1.35vw, 18px);
+    line-height: 1.65;
+    color: var(--charcoal);
+    max-width: 1280px;
+  }
+  .magazine .mag-cols p { margin-bottom: 12px; }
+  .magazine .mag-cols p:first-child::first-letter {
+    font-family: var(--font-base);
+    font-size: clamp(56px, 6.4vw, 84px);
+    font-weight: 800;
+    float: left;
+    line-height: 0.88;
+    margin: 8px 10px 0 0;
+    color: var(--primary);
+    letter-spacing: -0.02em;
+  }
+  .magazine .mag-foot {
+    margin-top: 32px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 12px;
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--graphite);
+    font-weight: 600;
+  }
+
+  /* MAGAZINE variant (slide 14) — 2 column with quote pull */
+  .magazine.variant-b .mag-cols { column-count: 2; column-gap: 48px; }
+  .magazine.variant-b .mag-title { font-size: clamp(40px, 5.6vw, 60px); }
+
+  /* =========================================================
+     ARCH 05 — BIG TYPE
+     ========================================================= */
+  .big-type-stage {
+    max-width: 1340px;
+    position: relative;
+  }
+  .big-type-headline {
+    font-size: clamp(58px, 9vw, 124px);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: #fff;
+  }
+  .big-type-headline .accent-coral { color: var(--bloom-coral); }
+  .big-type-headline .accent-bright { color: var(--primary-bright); }
+  .big-type-corner {
+    position: absolute;
+    top: -40px; right: 0;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  /* =========================================================
+     ARCH 06 — STACKED DATA
+     ========================================================= */
+  .stacked-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 56px;
+    margin-top: 40px;
+    align-items: start;
+  }
+  .stacked-list { width: 100%; }
+  .stacked-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 100px;
+    gap: 20px;
+    align-items: center;
+    padding: 22px 0;
+    border-top: 1px solid var(--hairline);
+    transition: padding-left 0.3s ease;
+  }
+  .stacked-row:hover { padding-left: 8px; }
+  .stacked-row:first-child { border-top: 2px solid var(--ink); }
+  .stacked-row:last-child { border-bottom: 1px solid var(--hairline); }
+  .stacked-row .num {
+    font-size: 28px; font-weight: 700;
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .stacked-row .label-block .name {
+    font-size: clamp(18px, 1.6vw, 21px);
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .stacked-row .bar-wrap {
+    height: 4px;
+    background: var(--cloud);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .stacked-row .bar-wrap > i {
+    display: block; height: 100%; width: 0%;
+    background: var(--primary);
+    border-radius: 2px;
+    transition: width 1.4s cubic-bezier(.2,.7,.3,1);
+  }
+  .stacked-row.coral .bar-wrap > i { background: var(--bloom-coral); }
+  .stacked-row .val {
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 600;
+    color: var(--ink);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .stacked-row.coral .val { color: var(--bloom-coral); }
+
+  /* STACKED variant (slide 15) — qualitative not quantitative */
+  .stacked-row.qual .num { color: var(--graphite); }
+  .stacked-row.qual .val {
+    font-size: 14px;
+    color: var(--graphite);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* =========================================================
+     ARCH 07 — VENN
+     ========================================================= */
+  .venn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 64px;
+    margin-top: 40px;
+    align-items: center;
+  }
+  .venn-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.5 / 1;
+    max-width: 640px;
+  }
+  .venn-circle {
+    position: absolute;
+    width: 60%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 3px solid;
+    top: 50%; transform: translateY(-50%);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600;
+    font-size: clamp(20px, 2.4vw, 28px);
+    letter-spacing: 0.04em;
+  }
+  .venn-circle.a {
+    left: 0;
+    background: rgba(2,74,216,0.10);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .venn-circle.b {
+    right: 0;
+    background: rgba(26,26,26,0.04);
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .venn-axis {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .venn-axis .axis-label {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--graphite);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .venn-axis .axis-name {
+    font-size: clamp(16px, 1.6vw, 20px);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .venn-tags {
+    margin-top: 24px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .venn-tag {
+    background: var(--cloud);
+    color: var(--ink);
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .venn-tag.primary { background: var(--primary-soft); color: var(--primary-deep); }
+
+  /* =========================================================
+     ARCH 08 — DIAGONAL
+     ========================================================= */
+  .diagonal-stage {
+    position: relative;
+    width: 100%; height: 100%;
+    overflow: hidden;
+  }
+  .diagonal-left {
+    position: absolute; inset: 0;
+    background: var(--ink);
+    color: #fff;
+    clip-path: polygon(0 0, 100% 0, 60% 100%, 0 100%);
+    padding: clamp(64px, 9vh, 120px) clamp(56px, 9vw, 140px);
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .diagonal-right {
+    position: absolute; inset: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    clip-path: polygon(60% 0, 100% 0, 100% 100%, 40% 100%);
+    padding: clamp(64px, 9vh, 120px) clamp(56px, 9vw, 140px);
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-end; text-align: right;
+  }
+  .diagonal-left .label {
+    color: var(--primary-bright);
+    font-size: 14px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .diagonal-right .label {
+    color: var(--primary);
+    font-size: 14px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .diagonal-left h2 { font-size: clamp(36px, 5.5vw, 64px); font-weight: 500; line-height: 1.0; max-width: 60%; margin-bottom: 24px; letter-spacing: -0.02em; }
+  .diagonal-right h2 { font-size: clamp(36px, 5.5vw, 64px); font-weight: 500; line-height: 1.0; max-width: 80%; margin-bottom: 24px; letter-spacing: -0.02em; }
+  .diagonal-left p { color: rgba(255,255,255,0.72); font-size: clamp(15px, 1.3vw, 18px); max-width: 55%; line-height: 1.5; word-break: keep-all; }
+  .diagonal-right p { color: var(--charcoal); font-size: clamp(15px, 1.3vw, 18px); max-width: 70%; line-height: 1.5; word-break: keep-all; }
+
+  /* =========================================================
+     ARCH 09 — EDITORIAL (body + sidebar pull)
+     ========================================================= */
+  .editorial {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .editorial .ed-body {
+    padding-right: 56px;
+    border-right: 1px solid var(--hairline);
+  }
+  .editorial .ed-sidebar {
+    background: var(--cloud);
+    margin: -32px -32px -32px 0;
+    padding: 56px 48px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .editorial.on-cloud .ed-sidebar {
+    background: var(--canvas);
+  }
+  .editorial .pull-quote {
+    font-family: var(--font-base);
+    font-size: clamp(28px, 3.4vw, 42px);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+  .editorial .pull-quote::before {
+    content: "“";
+    font-family: var(--font-base);
+    font-size: clamp(80px, 10vw, 120px);
+    font-weight: 600;
+    line-height: 0;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 32px;
+    height: 0.6em;
+  }
+  .editorial .pull-attr {
+    margin-top: 24px;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--graphite);
+    font-weight: 700;
+  }
+
+  /* =========================================================
+     ARCH 10 — FLOW
+     ========================================================= */
+  .flow-row {
+    display: grid;
+    grid-template-columns: 1fr 56px 1fr 56px 1fr;
+    gap: 16px;
+    align-items: stretch;
+    margin-top: 48px;
+  }
+  .flow-step {
+    background: var(--canvas);
+    border-radius: var(--r-xl);
+    padding: 32px 28px;
+    box-shadow: var(--soft-lift);
+    border-top: 4px solid var(--canvas);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .flow-step:hover { transform: translateY(-4px); box-shadow: var(--hover-lift); }
+  .flow-step.featured {
+    border-top-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 14px 36px rgba(2,74,216,0.32);
+  }
+  .flow-step .label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--graphite);
+    margin-bottom: 12px;
+  }
+  .flow-step.featured .label { color: rgba(255,255,255,0.78); }
+  .flow-step .name {
+    font-size: clamp(22px, 2.4vw, 28px);
+    font-weight: 500;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .flow-step.featured .name { color: #fff; }
+  .flow-step .desc {
+    font-size: 14px; line-height: 1.55;
+    color: var(--charcoal);
+    word-break: keep-all;
+  }
+  .flow-step.featured .desc { color: rgba(255,255,255,0.85); }
+  .flow-step .stamp {
+    margin-top: 16px;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    padding: 6px 0;
+    border-top: 1px dashed var(--hairline);
+    letter-spacing: 0.04em;
+  }
+  .flow-step.featured .stamp { color: #fff; border-top-color: rgba(255,255,255,0.4); }
+  .flow-arrow {
+    align-self: center;
+    text-align: center;
+    color: var(--primary);
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  /* =========================================================
+     ARCH 11 — SPLIT (Before/After)
+     ========================================================= */
+  .split-stage {
+    width: 100%; height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .split-side {
+    padding: clamp(64px, 9vh, 120px) clamp(56px, 7vw, 100px);
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .split-side.before { background: var(--cloud); color: var(--ink); }
+  .split-side.after { background: var(--ink); color: #fff; }
+  .split-side .stamp {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .split-side.before .stamp { color: var(--graphite); }
+  .split-side.after .stamp { color: var(--primary-bright); }
+  .split-side h2 {
+    font-size: clamp(40px, 5.4vw, 64px);
+    font-weight: 500;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+  .split-side ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .split-side ul li {
+    padding: 14px 0;
+    border-top: 1px solid var(--hairline);
+    font-size: clamp(15px, 1.4vw, 18px);
+    line-height: 1.5;
+    word-break: keep-all;
+  }
+  .split-side.after ul li { border-top-color: rgba(255,255,255,0.12); }
+  .split-side.before ul li:first-child,
+  .split-side.after ul li:first-child { border-top: 2px solid currentColor; }
+
+  /* =========================================================
+     Closing — Editorial + Bento bottom tabs
+     ========================================================= */
+  .closing-tabs {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-top: 48px;
+  }
+  .closing-tab {
+    padding: 12px 24px;
+    border-radius: var(--r-pill);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    background: var(--cloud);
+    color: var(--ink);
+    border: 1px solid var(--hairline);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .closing-tab.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  .closing-tab:hover { transform: translateY(-2px); border-color: var(--primary); color: var(--primary); }
+  .closing-tab.active:hover { color: #fff; }
+
+  /* =========================================================
+     Overview
+     ========================================================= */
+  .stage.overview .reel {
+    transform: none !important; perspective: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    padding: 50px 22px 22px;
+    background: #0c0c0e;
+    overflow: auto;
+    height: 100%;
+  }
+  .stage.overview .slide {
+    position: relative !important; inset: auto !important;
+    aspect-ratio: 16 / 9;
+    height: auto; width: 100%;
+    transform: scale(1) !important;
+    opacity: 1 !important; filter: none !important;
+    pointer-events: auto !important;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    padding: 12px;
+  }
+  .stage.overview .slide.is-current { border-color: var(--primary); }
+  .stage.overview .slide-inner { transform: scale(0.36); transform-origin: top left; width: 280%; pointer-events: none; }
+  .stage.overview .nav-zone,
+  .stage.overview .hint-bar,
+  .stage.overview .corner-counter,
+  .stage.overview .utility-strip,
+  .stage.overview .top-bar-progress { display: none; }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .magazine .mag-cols { column-count: 2; }
+    .stacked-grid, .venn-grid, .editorial { grid-template-columns: 1fr; gap: 24px; }
+    .editorial .ed-body { border-right: none; padding-right: 0; }
+    .editorial .ed-sidebar { margin: 24px 0 0; }
+    .flow-row { grid-template-columns: 1fr; }
+    .flow-arrow { transform: rotate(90deg); padding: 8px 0; }
+    .bento { grid-template-columns: repeat(2, 1fr); height: auto; }
+    .bento-tile.span-2x2 { grid-column: span 2; }
+  }
+  @media (max-width: 833px) {
+    .magazine .mag-cols { column-count: 1; }
+    .split-stage { grid-template-columns: 1fr; }
+    .nav-zone .arrow { width: 40px; height: 40px; font-size: 16px; }
+    .utility-strip .marquee, .utility-strip .item-hide { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <div class="utility-strip">
+    <div class="left">
+      <span class="item-hide">대한민국 / 한국어</span>
+      <span class="item-hide">|</span>
+      <span><strong>For Pastors</strong></span>
+    </div>
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-inner">AI · 목회 · 윤리 · 신학적 스펙트럼 · 말씀과 기도 · 경험적 한계 · 새로운 학습 ·&nbsp;&nbsp;&nbsp;AI · 목회 · 윤리 · 신학적 스펙트럼 · 말씀과 기도 · 경험적 한계 · 새로운 학습 ·&nbsp;&nbsp;&nbsp;</div>
+    </div>
+    <div class="right">
+      <span>강의 자료 시안 3</span>
+      <span class="sep">·</span>
+      <span><strong>Sign in</strong></span>
+    </div>
+  </div>
+  <div class="top-bar-progress"><i id="progress" style="width: 0%"></i></div>
+
+  <div class="corner-counter"><span id="curIdx">1</span> / <span id="totIdx">17</span></div>
+  <div class="nav-zone left" id="navLeft"><div class="arrow">←</div></div>
+  <div class="nav-zone right" id="navRight"><div class="arrow">→</div></div>
+
+  <div class="reel" id="reel">
+
+    <!-- ==========================================================
+         Slide 1 — HERO (chevron)
+         ========================================================== -->
+    <section class="slide slide-canvas" data-bg="canvas" data-transition="fade">
+      <div class="slide-inner">
+        <div class="hero-stage">
+          <div class="chevron left" aria-hidden="true"></div>
+          <div class="chevron right" aria-hidden="true"></div>
+          <div class="hero-card">
+            <span class="eyebrow build"><span class="pulse-dot"></span>강의 시리즈 · 2026</span>
+            <h1 class="display-xxl build" style="margin-bottom: 40px;">
+              AI 시대,<br/>목회는 오데오 <br/>  오데로 어디로<br/>가야 <span class="underline-key">하는가
+                <svg viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M2 8 Q 60 0, 120 6 T 198 4"/></svg>
+              </span>.
+            </h1>
+            <p class="body-lg lead build" style="max-width: 820px;">
+              도전 · 자세 · 학습 — 세 가지 시선으로 살펴보는 AI 시대의 목회.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 2 — BENTO (학습 목표)
+         ========================================================== -->
+    <section class="slide slide-cloud" data-bg="canvas" data-transition="push">
+      <div class="slide-inner">
+        <div class="section-head build">
+          <span class="eyebrow"><span class="pulse-dot"></span>이번 시간에</span>
+          <h2 class="display-xl">우리가 함께 살펴볼 <span class="underline-key">세 가지
+            <svg viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M2 8 Q 60 0, 120 6 T 198 4"/></svg>
+          </span>.</h2>
+        </div>
+        <div class="bento">
+          <div class="bento-tile t-ink span-2x2 build">
+            <div class="b-label" style="color: var(--primary-bright);">Part 0111</div>
+            <div>
+              <div class="b-num">01</div>
+              <div class="b-name">목회적 도전</div>
+              <div class="b-body">AI가 만든 새로운 현실 위에서, 성도들의 삶을 어떻게 마주할 것인가.</div>
+            </div>
+          </div>
+          <div class="bento-tile t-primary build">
+            <div class="b-label">Part 02</div>
+            <div>
+              <div class="b-num">02</div>
+              <div class="b-name">목회자의 자세</div>
+            </div>
+          </div>
+          <div class="bento-tile t-canvas build">
+            <div class="b-label" style="color: var(--primary);">Part 03</div>
+            <div>
+              <div class="b-num" style="color: var(--ink);">03</div>
+              <div class="b-name" style="color: var(--ink);">새로운 학습 기회</div>
+            </div>
+          </div>
+          <div class="bento-tile t-coral build">
+            <div class="b-label">강의 시간</div>
+            <div class="b-num" style="font-size: clamp(100px, 5vw, 100px);">50<span style="font-size: 0.5em;">min</span></div>
+          </div>
+          <div class="bento-tile t-soft build">
+            <div class="b-label">핵심 메시지</div>
+            <div class="b-name" style="color: var(--primary-deep); margin-top: auto;">깨어짐과 확장</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 3 — TIMELINE (Part 1)
+         ========================================================== -->
+    <section class="slide slide-ink" data-bg="ink" data-transition="rise">
+      <div class="slide-inner">
+        <div class="section-num-watermark">01</div>
+        <span class="eyebrow build"><span class="pulse-dot"></span>Part 01 of 03</span>
+        <h2 class="display-xxl build" style="margin-bottom: 28px; max-width: 1100px;">
+          AI 시대 목회의<br/>필수 이해.
+        </h2>
+        <p class="body-lg lead build" style="max-width: 820px;">
+          성도들이 살고 있는 세계를 외면한 선포는, 더 이상 그들의 삶에 닿지 않습니다.
+        </p>
+        <div class="timeline-wrap build">
+          <div class="timeline-track">
+            <div class="timeline-fill" data-fill-target="16"></div>
+            <div class="timeline-nodes">
+              <div class="timeline-node active"></div>
+              <div class="timeline-node"></div>
+              <div class="timeline-node"></div>
+            </div>
+          </div>
+          <div class="timeline-labels">
+            <span class="cur">Part 01 · 도전</span>
+            <span>Part 02 · 자세</span>
+            <span>Part 03 · 학습</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 4 — MAGAZINE (성도들 AI 영향 속에)
+         ========================================================== -->
+    <section class="slide slide-canvas" data-bg="canvas" data-transition="push">
+      <div class="slide-inner">
+        <article class="magazine">
+          <div class="mag-eyebrow build">
+            <span>현실 · CHAPTER 01</span>
+            <span>For Pastors · 2026</span>
+          </div>
+          <h2 class="mag-title build">성도들은 이미<br/>AI의 영향 속에<br/>살고 있습니다.</h2>
+          <div class="mag-cols build">
+            <p>현대를 살아가는 사람이라면 누구도 이 흐름 밖에 있을 수 없습니다. 목회자가 이 흐름을 모른 채 강단에 선다면 — 우리가 외치는 말씀은 그들의 삶에 닿지 못합니다.</p>
+            <p>정해진 틀에 맞춰 "말씀과 기도로 다 됩니다"라고만 외친다면, 그 문장은 환경에 닿지 않는 선포가 됩니다. 복음이 아니라 폭력적 언어가 될 수 있습니다.</p>
+            <p>그리고 이 시대는, 인간의 존엄성이 어디에 있는가 하는 질문을 점점 더 자주 던지게 만들 것입니다. 목회자는 이 질문 앞에서 함께 서야 합니다.</p>
+          </div>
+          <div class="mag-foot build">
+            <span>Slide 04 / 17</span>
+            <span>AI &nbsp; Pastoral Care &nbsp; Reality</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 5 — BIG TYPE (폭력적 언어 경고)
+         ========================================================== -->
+    <section class="slide slide-ink" data-bg="ink" data-transition="fade">
+      <div class="slide-inner">
+        <div class="big-type-stage">
+          <div class="big-type-corner build">Slide 05 / 17 · CAUTION</div>
+          <span class="badge-coral build" style="margin-bottom: 32px;">● 주의 · CAUTION</span>
+          <h2 class="big-type-headline build">
+            정해진 틀에 맞춘<br/>말씀은, 때로 복음이<br/>아니라 <span class="accent-coral">폭력적 언어</span>가<br/>됩니다.
+          </h2>
+          <p class="body-lg lead build" style="margin-top: 40px; max-width: 880px;">
+            성도가 살아가는 환경을 모른 채 "말씀과 기도로 다 됩니다"라고만 외친다면 — 그 문장은 환경에 닿지 않는 선포가 됩니다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 6 — STACKED DATA (직업 대체)
+         ========================================================== -->
+    <section class="slide slide-canvas" data-bg="canvas" data-transition="push">
+      <div class="slide-inner">
+        <div class="section-head build">
+          <span class="eyebrow"><span class="pulse-dot"></span>현장에서 · DATA 2026</span>
+          <h2 class="display-xl">세무사 · 변호사 · 변리사…<br/>이미 시작된 <span class="underline-key">대체
+            <svg viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M2 8 Q 60 0, 120 6 T 198 4"/></svg>
+          </span>.</h2>
+        </div>
+        <div class="stacked-grid">
+          <div>
+            <p class="body-lg lead build" style="margin-bottom: 20px;">
+              신입이 인턴 자리조차 구하기 어려울 정도로 상황이 심각합니다. 인생을 바쳐 자격증을 땄는데, 정작 할 일이 없는 성도들이 쏟아져 나올 것입니다.
+            </p>
+            <p class="body-lg build" style="font-weight: 500; color: var(--ink);">
+              이들을 어떻게 상담하고, 어떤 길을 제시할 것인가.
+            </p>
+          </div>
+          <div class="stacked-list build">
+            <div class="stacked-row">
+              <span class="num">01</span>
+              <div class="label-block">
+                <div class="name">세무사 — 자동화 비율</div>
+                <div class="bar-wrap"><i data-bar-target="62"></i></div>
+              </div>
+              <span class="val"><span data-count="62" data-suffix="%">0%</span></span>
+            </div>
+            <div class="stacked-row">
+              <span class="num">02</span>
+              <div class="label-block">
+                <div class="name">변호사 보조 업무</div>
+                <div class="bar-wrap"><i data-bar-target="74"></i></div>
+              </div>
+              <span class="val"><span data-count="74" data-suffix="%">0%</span></span>
+            </div>
+            <div class="stacked-row">
+              <span class="num">03</span>
+              <div class="label-block">
+                <div class="name">변리사 검색·분류</div>
+                <div class="bar-wrap"><i data-bar-target="81"></i></div>
+              </div>
+              <span class="val"><span data-count="81" data-suffix="%">0%</span></span>
+            </div>
+            <div class="stacked-row coral">
+              <span class="num" style="color: var(--bloom-coral);">04</span>
+              <div class="label-block">
+                <div class="name">신입 인턴 자리</div>
+                <div class="bar-wrap"><i data-bar-target="76"></i></div>
+              </div>
+              <span class="val">감소</span>
+            </div>
+            <p style="margin-top: 16px; font-size: 12px; color: var(--graphite);">* 강의용 추정 예시 (실측치 아님)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 7 — VENN (인간 vs AI)
+         ========================================================== -->
+    <section class="slide slide-cloud" data-bg="canvas" data-transition="flip">
+      <div class="slide-inner">
+        <div class="section-head build">
+          <span class="eyebrow"><span class="pulse-dot"></span>우리가 가르쳐야 할 것</span>
+          <h2 class="display-xl">인간은 <span class="underline-key">대체될 수 없는
+            <svg viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M2 8 Q 60 0, 120 6 T 198 4"/></svg>
+          </span> 존재.</h2>
+        </div>
+        <div class="venn-grid">
+          <div>
+            <p class="body-lg lead build" style="margin-bottom: 24px;">
+              효율성 · 지능 · 정보 — 그 어떤 것으로도 인간은 환원되지 않습니다. 데이터로 압축되지 않는 영역이 인간에게 있습니다.
+            </p>
+            <div class="venn-tags build">
+              <span class="venn-tag primary">존엄성</span>
+              <span class="venn-tag primary">관계 · 사랑</span>
+              <span class="venn-tag primary">영성</span>
+              <span class="venn-tag">효율성</span>
+              <span class="venn-tag">계산</span>
+              <span class="venn-tag">패턴 인식</span>
+            </div>
+          </div>
+          <div class="venn-stage build">
+            <div class="venn-circle a">인간</div>
+            <div class="venn-circle b">AI</div>
+            <div class="venn-axis">
+              <div class="axis-label">교집합</div>
+              <div class="axis-name">도구로서의 협력</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 8 — TIMELINE (Part 2)
+         ========================================================== -->
+    <section class="slide slide-ink" data-bg="ink" data-transition="rise">
+      <div class="slide-inner">
+        <div class="section-num-watermark">02</div>
+        <span class="eyebrow build"><span class="pulse-dot"></span>Part 02 of 03</span>
+        <h2 class="display-xxl build" style="margin-bottom: 28px; max-width: 1100px;">
+          AI 시대를 맞이하는<br/>목회자의 자세.
+        </h2>
+        <p class="body-lg lead build" style="max-width: 820px;">
+          이런 시대에 목회자는, 윤리적 고민을 할 수밖에 없습니다 — 해야만 합니다.
+        </p>
+        <div class="timeline-wrap build">
+          <div class="timeline-track">
+            <div class="timeline-fill" data-fill-target="50"></div>
+            <div class="timeline-nodes">
+              <div class="timeline-node active"></div>
+              <div class="timeline-node active"></div>
+              <div class="timeline-node"></div>
+            </div>
+          </div>
+          <div class="timeline-labels">
+            <span class="done">Part 01 · 완료</span>
+            <span class="cur">Part 02 · 자세</span>
+            <span>Part 03 · 학습</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 9 — DIAGONAL (두 극단 vs 길)
+         ========================================================== -->
+    <section class="slide slide-split" data-bg="canvas" data-transition="push">
+      <div class="diagonal-stage">
+        <div class="diagonal-left">
+          <div class="label build">EXTREME</div>
+          <h2 class="build">무비판적 사용 ·<br/>무관심 회피</h2>
+          <p class="build">두 극단 모두 또 다른 문제가 됩니다. 한쪽은 윤리적 공백, 다른 쪽은 시대적 무지.</p>
+        </div>
+        <div class="diagonal-right">
+          <div class="label build">PATH</div>
+          <h2 class="build">계속 고민하며,<br/>분별하며.</h2>
+          <p class="build">두 극단 사이를 끊임없이 오가며, 그때그때 분별하며 나아가야 합니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 10 — EDITORIAL (음식 비유)
+         ========================================================== -->
+    <section class="slide slide-canvas" data-bg="canvas" data-transition="push">
+      <div class="slide-inner">
+        <article class="editorial">
+          <div class="ed-body">
+            <span class="eyebrow build"><span class="pulse-dot"></span>비유 · ANALOGY</span>
+            <h2 class="display-lg build" style="margin-bottom: 32px;">음식을 만든다고 해봅시다.</h2>
+            <p class="body-lg lead build" style="margin-bottom: 20px;">
+              옛날에는 유튜브도 저울도 없었습니다. 여러 감각과 전통적인 방식에 의존해 스스로 답을 찾았고 — 그래서 맛있는 음식을 만들어 먹었습니다.
+            </p>
+            <p class="body-lg lead build" style="margin-bottom: 20px;">
+              그런데 이제 매체가 있습니다. 유튜브를 통해 레시피를 얻을 수 있고, 그 레시피는 일반적인 맛에 도달하기에 적합합니다.
+            </p>
+            <p class="body-lg build" style="font-weight: 500; color: var(--ink);">
+              그러나 뛰어난 사람이 되고 싶다면 — 레시피를 조금씩 바꿔가며 자기만의 길을 찾아야 합니다.
+            </p>
+          </div>
+          <aside class="ed-sidebar build">
+            <p class="pull-quote">전통이 소중하니까 유튜브 검색하지 말고, 너 스스로 맛을 찾아라 — 이건 말도 안 되는 이야기입니다.</p>
+            <p class="pull-attr">— Slide 10, 음식 비유</p>
+          </aside>
+        </article>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 11 — FLOW (옛날 → 일반 → 상위 20%)
+         ========================================================== -->
+    <section class="slide slide-canvas" data-bg="canvas" data-transition="push">
+      <div class="slide-inner">
+        <div class="section-head build">
+          <span class="eyebrow"><span class="pulse-dot"></span>교육 방법론</span>
+          <h2 class="display-xl">기술과 함께 <span class="underline-key">잘
+            <svg viewBox="0 0 80 12" preserveAspectRatio="none"><path d="M2 8 Q 30 0, 60 6 T 78 4"/></svg>
+          </span> 가르치는 법.</h2>
+        </div>
+        <div class="flow-row">
+          <div class="flow-step build">
+            <div class="label">STEP · 01</div>
+            <div class="name">옛날</div>
+            <div class="desc">감각과 전통에 의존해 스스로 답을 찾던 시대.</div>
+            <div class="stamp">감각 · 전통</div>
+          </div>
+          <div class="flow-arrow build">→</div>
+          <div class="flow-step build">
+            <div class="label">STEP · 02</div>
+            <div class="name">지금 · 일반</div>
+            <div class="desc">레시피를 따라 만들면 일반적인 맛에 도달.</div>
+            <div class="stamp">레시피 따라가기</div>
+          </div>
+          <div class="flow-arrow build">→</div>
+          <div class="flow-step featured build">
+            <div class="label">★ STEP · 03</div>
+            <div class="name">상위 <span data-count="20" data-suffix="%">0%</span></div>
+            <div class="desc">레시피를 변형하며 자기만의 방법을 찾는 사람.</div>
+            <div class="stamp">레시피 + 변형</div>
+          </div>
+        </div>
+        <p class="body-md build" style="margin-top: 36px; max-width: 1100px; color: var(--charcoal);">
+          기술을 방치하는 것도, 기술 의존도가 너무 높은 것도 — 둘 다 문제입니다. 그 사이에서 길을 찾는 일, 그것이 교회가 해야 할 일입니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 12 — BIG TYPE (변하지 않는 중심)
+         ========================================================== -->
+    <section class="slide slide-ink" data-bg="ink" data-transition="flip">
+      <div class="slide-inner">
+        <div class="big-type-stage">
+          <div class="big-type-corner build">Slide 12 / 17 · TRUTH</div>
+          <span class="eyebrow build" style="margin-bottom: 32px;"><span class="pulse-dot"></span>불변의 진리</span>
+          <h2 class="big-type-headline build" style="font-size: clamp(54px, 8.4vw, 116px);">
+            어떤 시대를 살더라도,<br/><span class="accent-bright">말씀과 기도</span>가<br/>중심이 되지 않으면<br/>무너집니다.
+          </h2>
+          <p class="body-lg lead build" style="margin-top: 40px; max-width: 940px;">
+            그렇다면 거꾸로 — AI를 활용함으로써 우리가 더 말씀과 기도에 집중할 수 있는 환경을 만들 수도 있지 않을까요.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 13 — TIMELINE (Part 3)
+         ========================================================== -->
+    <section class="slide slide-ink" data-bg="ink" data-transition="rise">
+      <div class="slide-inner">
+        <div class="section-num-watermark">03</div>
+        <span class="eyebrow build"><span class="pulse-dot"></span>Part 03 of 03</span>
+        <h2 class="display-xxl build" style="margin-bottom: 28px; max-width: 1100px;">
+          AI가 여는<br/>새로운 학습.
+        </h2>
+        <p class="body-lg lead build" style="max-width: 820px;">
+          실질적으로, 목회자는 AI를 어떤 방식으로 사용해야 할까요.
+        </p>
+        <div class="timeline-wrap build">
+          <div class="timeline-track">
+            <div class="timeline-fill" data-fill-target="84"></div>
+            <div class="timeline-nodes">
+              <div class="timeline-node active"></div>
+              <div class="timeline-node active"></div>
+              <div class="timeline-node active"></div>
+            </div>
+          </div>
+          <div class="timeline-labels">
+            <span class="done">Part 01 · 완료</span>
+            <span class="done">Part 02 · 완료</span>
+            <span class="cur">Part 03 · 학습</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 14 — MAGAZINE variant (우리는 일부만 경험)
+         ========================================================== -->
+    <section class="slide slide-canvas" data-bg="canvas" data-transition="push">
+      <div class="slide-inner">
+        <article class="magazine variant-b">
+          <div class="mag-eyebrow build">
+            <span>한계 · CHAPTER 03</span>
+            <span>Slide 14 / 17</span>
+          </div>
+          <h2 class="mag-title build">우리는 모두<br/>일부만 경험합니다.</h2>
+          <div class="mag-cols build">
+            <p>우리는 육체를 가지고 현시대를 살아가는 한계가 있습니다. 특히 하나님에 대해서는 — 극히 일부분만을 경험하며 살아갑니다.</p>
+            <p>그래서 다른 사람이 만난 하나님께 마음을 여는 것 — 그것이 신학의 출발점입니다. 그 한계를 인정하지 않으면 우리는 자신의 경험을 절대화하기 쉽습니다.</p>
+          </div>
+          <div class="mag-foot build">
+            <span>Slide 14 / 17</span>
+            <span>Limitation &nbsp; Theology &nbsp; Openness</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 15 — STACKED variant (3가지 한계)
+         ========================================================== -->
+    <section class="slide slide-cloud" data-bg="canvas" data-transition="push">
+      <div class="slide-inner">
+        <div class="section-head build">
+          <span class="eyebrow"><span class="pulse-dot"></span>이전까지의 한계</span>
+          <h2 class="display-xl">왜 우리는 좁아질 수밖에 없었나.</h2>
+        </div>
+        <div class="stacked-list build" style="max-width: 1100px;">
+          <div class="stacked-row qual">
+            <span class="num">01</span>
+            <div class="label-block">
+              <div class="name">시간의 한계</div>
+              <div class="bar-wrap"><i data-bar-target="92"></i></div>
+            </div>
+            <span class="val">고비용</span>
+          </div>
+          <div class="stacked-row qual">
+            <span class="num">02</span>
+            <div class="label-block">
+              <div class="name">관계의 한계</div>
+              <div class="bar-wrap"><i data-bar-target="78"></i></div>
+            </div>
+            <span class="val">동일 진영</span>
+          </div>
+          <div class="stacked-row qual">
+            <span class="num">03</span>
+            <div class="label-block">
+              <div class="name">본능의 한계</div>
+              <div class="bar-wrap"><i data-bar-target="85"></i></div>
+            </div>
+            <span class="val">편함 추구</span>
+          </div>
+        </div>
+        <p class="body-lg build" style="margin-top: 32px; max-width: 1100px; color: var(--charcoal);">
+          책 · 동영상 · 만남에 들어가는 비용이 컸습니다. 같은 생각의 사람들만 만나며, 익숙한 것에 자연스레 쏠리게 됩니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 16 — SPLIT (Before/After)
+         ========================================================== -->
+    <section class="slide slide-split" data-bg="canvas" data-transition="push">
+      <div class="split-stage">
+        <div class="split-side before">
+          <div class="stamp build">BEFORE — 좁아진 시야</div>
+          <h2 class="build">제한된<br/>경험 안에서.</h2>
+          <ul>
+            <li class="build">책·동영상·만남의 시간 비용이 컸음</li>
+            <li class="build">같은 생각의 사람들만 만남</li>
+            <li class="build">익숙하고 편한 것에만 쏠림</li>
+            <li class="build">자기 경험을 절대화하기 쉬움</li>
+          </ul>
+        </div>
+        <div class="split-side after">
+          <div class="stamp build">AFTER — 확장된 시야</div>
+          <h2 class="build">정반대 입장의<br/>신학자도, 오늘.</h2>
+          <ul>
+            <li class="build">의지만 있다면 정반대 신학을 즉시 탐구</li>
+            <li class="build">조직신학적으로 내 위치 객관 파악</li>
+            <li class="build">반대 의견의 논리·근거 깊이 이해</li>
+            <li class="build">매 설교마다 새로운 배움</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         Slide 17 — CLOSING (Editorial + tabs)
+         ========================================================== -->
+    <section class="slide slide-canvas" data-bg="canvas" data-transition="flip">
+      <div class="slide-inner">
+        <article class="editorial on-cloud" style="background: var(--cloud); margin: -32px -64px; padding: 48px 64px; border-radius: var(--r-xl);">
+          <div class="ed-body">
+            <span class="eyebrow build"><span class="pulse-dot"></span>결론 · CLOSING</span>
+            <h2 class="display-xl build" style="margin-bottom: 32px;">
+              AI는, 내 <span class="underline-key">아집과 자기중심
+                <svg viewBox="0 0 320 12" preserveAspectRatio="none"><path d="M2 8 Q 80 0, 160 6 T 318 4"/></svg>
+              </span>이<br/>깨어지는 도구가 될 수 있습니다.
+            </h2>
+            <p class="body-lg lead build" style="margin-bottom: 16px;">
+              단순히 자신이 경험한 것 안에서 해석된 하나님만 믿는 것과는 — 완전히 다른 차원입니다.
+            </p>
+            <p class="body-lg build" style="font-weight: 500; color: var(--ink);">
+              설교자는 매 설교 시간마다, 새로운 것을 배우며 살아갈 수 있습니다.
+            </p>
+            <div class="closing-tabs build">
+              <span class="closing-tab active">강의 자료</span>
+              <span class="closing-tab">참고 도서</span>
+              <span class="closing-tab">질의응답</span>
+              <span class="closing-tab">다음 강의</span>
+              <span class="closing-tab">목회자 모임</span>
+            </div>
+          </div>
+          <aside class="ed-sidebar build" style="background: var(--canvas);">
+            <p class="pull-quote">매 설교 시간마다, 새로운 것을 배우며 살아갈 수 있습니다.</p>
+            <p class="pull-attr">— 강의 마무리, AI 시대의 목회</p>
+          </aside>
+        </article>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="hint-bar" id="hintBar">
+    <kbd>←</kbd><kbd>→</kbd> 이동
+    <span style="color: var(--steel);">·</span>
+    <kbd>Space</kbd>
+    <span style="color: var(--steel);">·</span>
+    <kbd>F</kbd> 전체화면
+    <span style="color: var(--steel);">·</span>
+    <kbd>O</kbd> 오버뷰
+  </div>
+</div>
+
+<script>
+const stage = document.getElementById("stage");
+const slides = Array.from(document.querySelectorAll(".slide"));
+const total = slides.length;
+const progress = document.getElementById("progress");
+const curEl = document.getElementById("curIdx");
+const totEl = document.getElementById("totIdx");
+const hintBar = document.getElementById("hintBar");
+totEl.textContent = total;
+
+let cur = 0;
+
+function applyBg() { stage.dataset.bg = slides[cur].dataset.bg || "canvas"; }
+
+function snapPositions(activeIdx) {
+  slides.forEach((s, i) => {
+    s.classList.remove("is-current", "is-prev", "is-next", "is-animating");
+    if (i === activeIdx) s.classList.add("is-current");
+    else if (i < activeIdx) s.classList.add("is-prev");
+    else s.classList.add("is-next");
+  });
+}
+
+function animateCount(el, target, duration = 1300) {
+  const start = performance.now();
+  const suffix = el.dataset.suffix || "";
+  function step(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(target * eased) + suffix;
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function triggerSlideAnimations(idx) {
+  const slide = slides[idx];
+  slide.querySelectorAll("[data-count]").forEach(el => {
+    const target = parseInt(el.dataset.count, 10);
+    el.textContent = "0" + (el.dataset.suffix || "");
+    setTimeout(() => animateCount(el, target), 600);
+  });
+  slide.querySelectorAll("[data-bar-target]").forEach((el, i) => {
+    el.style.width = "0%";
+    setTimeout(() => { el.style.width = el.dataset.barTarget + "%"; }, 600 + i * 120);
+  });
+  slide.querySelectorAll("[data-fill-target]").forEach(el => {
+    el.style.width = "0%";
+    setTimeout(() => { el.style.width = el.dataset.fillTarget + "%"; }, 700);
+  });
+}
+
+function go(idx, pushHistory = true) {
+  idx = Math.max(0, Math.min(total - 1, idx));
+  if (idx === cur && slides[cur].classList.contains("is-current")) return;
+  const dir = idx >= cur ? "fwd" : "back";
+  const transition = slides[idx].dataset.transition || "push";
+  const oldCur = cur;
+  stage.dataset.transition = transition;
+  stage.dataset.dir = dir;
+
+  slides.forEach((s, i) => {
+    if (i === oldCur || i === idx) return;
+    s.classList.remove("is-current", "is-prev", "is-next", "is-animating");
+    if (i < idx) s.classList.add("is-prev");
+    else s.classList.add("is-next");
+  });
+
+  const outgoing = slides[oldCur];
+  const incoming = slides[idx];
+  outgoing.classList.add("is-animating");
+  incoming.classList.add("is-animating");
+
+  requestAnimationFrame(() => {
+    outgoing.classList.remove("is-current");
+    outgoing.classList.add(dir === "fwd" ? "is-prev" : "is-next");
+    incoming.classList.remove("is-prev", "is-next");
+    incoming.classList.add("is-current");
+  });
+
+  cur = idx;
+  progress.style.width = `${((cur + 1) / total) * 100}%`;
+  curEl.textContent = cur + 1;
+  applyBg();
+  triggerSlideAnimations(idx);
+  if (pushHistory) history.replaceState(null, "", `#${cur + 1}`);
+}
+function next() { go(cur + 1); }
+function prev() { go(cur - 1); }
+
+const initialHash = parseInt(location.hash.replace("#", ""), 10);
+const startIdx = Number.isFinite(initialHash) && initialHash >= 1 ? Math.min(initialHash - 1, total - 1) : 0;
+cur = startIdx;
+stage.dataset.transition = slides[startIdx].dataset.transition || "push";
+stage.dataset.dir = "fwd";
+snapPositions(startIdx);
+progress.style.width = `${((cur + 1) / total) * 100}%`;
+curEl.textContent = cur + 1;
+applyBg();
+triggerSlideAnimations(startIdx);
+
+document.addEventListener("keydown", (e) => {
+  switch (e.key) {
+    case "ArrowRight": case " ": case "PageDown":
+      e.preventDefault(); next(); break;
+    case "ArrowLeft": case "PageUp":
+      e.preventDefault(); prev(); break;
+    case "Home": e.preventDefault(); go(0); break;
+    case "End": e.preventDefault(); go(total - 1); break;
+    case "f": case "F": toggleFullscreen(); break;
+    case "o": case "O": stage.classList.toggle("overview"); break;
+    case "Escape":
+      if (stage.classList.contains("overview")) stage.classList.remove("overview");
+      break;
+  }
+});
+
+document.getElementById("navLeft").addEventListener("click", prev);
+document.getElementById("navRight").addEventListener("click", next);
+
+slides.forEach((s, i) => {
+  s.addEventListener("click", () => {
+    if (stage.classList.contains("overview")) {
+      stage.classList.remove("overview");
+      setTimeout(() => go(i), 50);
+    }
+  });
+});
+
+let tx = null;
+stage.addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; }, { passive: true });
+stage.addEventListener("touchend", (e) => {
+  if (tx === null) return;
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 60) (dx < 0 ? next : prev)();
+  tx = null;
+});
+
+window.addEventListener("hashchange", () => {
+  const n = parseInt(location.hash.replace("#", ""), 10);
+  if (Number.isFinite(n)) go(n - 1, false);
+});
+
+let hintTimer;
+function bumpHint() {
+  hintBar.classList.remove("fade");
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => hintBar.classList.add("fade"), 4000);
+}
+["mousemove", "keydown", "touchstart"].forEach(ev => window.addEventListener(ev, bumpHint, { passive: true }));
+bumpHint();
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+</script>
+</body>
+</html>
